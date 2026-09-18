@@ -17,7 +17,7 @@ new Phaser.Game({
   title: "Good Times",
   url: import.meta.env.URL || ' ',
   version: import.meta.env.VERSION || "0.0.1",
-  backgroundColor: '#cda0a0',
+  backgroundColor: '#708f9d',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
