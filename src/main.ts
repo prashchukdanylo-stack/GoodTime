@@ -1,7 +1,8 @@
 import Phaser from "phaser";
 import { MainMenuScene } from "./MainMenuScene";
+import {CharactersScene} from "./CharactersScene";
 import { WorldScene } from "./WorldScene";
-
+import {LocationScene } from "./LocationScene";
 
 new Phaser.Game({
   width: 900,
@@ -22,5 +23,5 @@ new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [MainMenuScene, WorldScene],
+  scene: [MainMenuScene,CharactersScene, WorldScene, LocationScene],
 });

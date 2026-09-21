@@ -149,18 +149,20 @@ export class WorldScene extends Phaser.Scene {
 
 
      class GameLocation {
+      data:object;
       scene: Phaser.Scene;
       sprite: Phaser.GameObjects.Sprite;
       speed: number;
       constructor(
         scene: Phaser.Scene,
         sprite: Phaser.GameObjects.Sprite,
+        data:object,
         speed: number = 200,
-        onReached?: () => void,
       ) {
         this.scene = scene;
         this.sprite = sprite;
         this.speed = speed;
+        this.data = data;
 
         this.sprite.setInteractive({ useHandCursor: true });
         this.sprite.on("pointerdown", () => {
@@ -179,9 +181,7 @@ export class WorldScene extends Phaser.Scene {
             duration: duration,
             ease: "Linear",
             onComplete: () => {
-              if (onReached) {
-                onReached();
-              }
+              this.scene.scene.start("LocationScene", this.data);
             },
           });
         });
@@ -189,10 +189,10 @@ export class WorldScene extends Phaser.Scene {
     }
    
 
-    const attractionLocation = new GameLocation(this, attraction);
-    const albertinaLocation = new GameLocation(this, albertina);
-    const stephanLocation = new GameLocation(this, stephan);
-    const shconbrunLocation = new GameLocation(this, shconbrun);
-    const belvedereLocation = new GameLocation(this, belvedere);
+    const attractionLocation = new GameLocation(this, attraction, {name:"attration"});
+    const albertinaLocation = new GameLocation(this, albertina, {name:"albertina"});
+    const stephanLocation = new GameLocation(this, stephan, {name:"stephan"});
+    const shconbrunLocation = new GameLocation(this, shconbrun, {name:"shconbrun"});
+    const belvedereLocation = new GameLocation(this, belvedere, {name:"belvedere"});
   }
 }

@@ -29,7 +29,7 @@ export class MainMenuScene extends Phaser.Scene {
       startButton.setStyle({ color: "#c91d1d" }),
     );
     startButton.on("pointerdown", () => {
-      this.scene.start("WorldScene");
+      this.scene.start("CharactersScene");
     });
   }
 }
