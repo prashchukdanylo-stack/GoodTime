@@ -41,6 +41,12 @@ class GameLocation {
 
         this.sprite.setInteractive({ useHandCursor: true });
         this.sprite.on("pointerdown", this.moveToLocation, this);
+        this.sprite.on("pointerover", () => {
+          this.sprite.setTint(0x4169E1);
+        })
+        this.sprite.on("pointerout", () => {
+          this.sprite.clearTint();
+        })
       }
 
       private moveToLocation():void {
@@ -77,15 +83,13 @@ export class WorldScene extends Phaser.Scene {
   create(data:playersProps) {
     const { width, height } = this.scale;
 
-    this.add.text(width * 0.4, height * 0.1, "Vienna", {
-      color: "#c91d1d",
-      fontSize: "32px",
-    });
+    this.add.image(0, 0, "viennaBackground_idle").setOrigin(0, 0);
+
 
   const player1Sprite = this.add.sprite(0,0,data.male.texture).play(data.male.anim);
   const player2Sprite = this.add.sprite(15, 0, data.female.texture).play(data.female.anim);
 
-     this.player = this.add.container(width / 2, height / 2, [
+     this.player = this.add.container(width / 2, height / 2 + 20, [
       player1Sprite,
       player2Sprite,
     ]);
@@ -93,11 +97,11 @@ export class WorldScene extends Phaser.Scene {
     this.player.setScale(4);
 
     const locationsConfig: LocationConfig[] = [
-      { name: "attraction", key: "attraction", x: width - 130, y: 210 },
-      { name: "albertina",  key: "albertina",  x: 90,          y: 400 },
-      { name: "stephan",    key: "stephan",    x: width / 2,   y: 500 },
-      { name: "schonbrun",  key: "schonbrun",  x: 130,         y: 200 },
-      { name: "belvedere",  key: "belvedere",  x: width - 110, y: 400 },
+      { name: "attraction", key: "attraction", x: width - 170, y: 250 },
+      { name: "albertina",  key: "albertina",  x: 180,          y: 440 , scale: 4},
+      { name: "stephan",    key: "stephan",    x: width / 2 + 50,   y: 500 },
+      { name: "schonbrun",  key: "schonbrun",  x: 110,         y: 250, scale: 4 },
+      { name: "belvedere",  key: "belvedere",  x: width - 130, y: 440, scale:4 },
     ]
     locationsConfig.forEach(({name, key, x, y, scale =5}) => {
       const sprite = this.add.sprite(x, y, `${key}_idle`).play(`${key}_anim`).setScale(scale);

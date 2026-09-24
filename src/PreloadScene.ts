@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-const assetFiles = import.meta.glob("./assets/*_idle.png", { 
+const assetFiles = import.meta.glob("./assets/*.png", { 
   eager: true, 
   query: "?url" ,
   import: "default"
@@ -12,12 +12,17 @@ export class PreloadScene extends Phaser.Scene {
   preload() {
     Object.entries(assetFiles).forEach(([filePath, url]) => {
       const texture = filePath.split("/").pop()?.replace(".png", "") || "";
-      this.load.spritesheet(texture, url, {frameWidth:32, frameHeight:32});
+      if (texture.includes("Background")) {
+        console.log("yes");
+        this.load.image(texture, url);
+      } else this.load.spritesheet(texture, url, {frameWidth:32, frameHeight:32});
     })
   }
   create() {
-    Object.keys(assetFiles).forEach((filePath) => {
+    Object.keys(assetFiles).forEach((filePath) =>   {
       const texture = filePath.split("/").pop()?.replace(".png", "") || "";
+      console.log(texture);
+      if (texture.includes("Background")) return;
       const anim = texture.replace("idle", "anim");
       const totalFrames = this.textures.get(texture).frameTotal - 2;
 
