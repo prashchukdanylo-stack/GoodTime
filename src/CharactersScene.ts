@@ -40,12 +40,20 @@ export class CharactersScene extends Phaser.Scene {
   }
 
   create() {
+    
     this.add.text(200, 200, "Choose your characters!!!", { fontSize: "32px" });
-    const leftArrowMale = this.add.text(170, 520, "<").setInteractive({useHandCursor: true});
-    const rightArrowMale = this.add.text(200, 520, ">").setInteractive({useHandCursor: true});
-    const leftArrowFemale = this.add.text(670, 520, "<").setInteractive({useHandCursor: true});
-    const rightArrowFemale = this.add.text(700, 520, ">").setInteractive({useHandCursor: true});
+    const leftArrowMale = this.add.text(140, 520, "<").setInteractive().setScale(4);
+    const rightArrowMale = this.add.text(200, 520, ">").setInteractive().setScale(4);
+    const leftArrowFemale = this.add.text(640, 520, "<").setInteractive().setScale(4);
+    const rightArrowFemale = this.add.text(700, 520, ">").setInteractive().setScale(4);
+    const confirm = this.add.text(400, 500, "Confirm").setInteractive();
 
+    const interactiveButtons = [leftArrowFemale, rightArrowFemale, leftArrowMale, rightArrowMale, confirm];
+
+    interactiveButtons.forEach((element) => {
+      element.on("pointerover", () => this.game.events.emit("cursor:hover"));
+      element.on("pointerout", () => this.game.events.emit("cursor:default"));
+    })
     leftArrowMale.on("pointerdown", () => {
       this.changeMale(-1);
     });
@@ -65,10 +73,10 @@ export class CharactersScene extends Phaser.Scene {
     this.femalePreview = this.add.sprite(700, 400, femaleCharacters[0].texture).play(femaleCharacters[0].anim).setScale(6);
     this.femaleText = this.add.text(700, 500, "Laura");
 
-    const confirm = this.add.text(400, 500, "Confirm").setInteractive({useHandCursor: true});
     confirm.on("pointerdown", () => {
         const currentSelectedMale = maleCharacters[this.maleIndex];
         const currentSelectedFemale = femaleCharacters[this.femaleIndex];
+        this.game.events.emit("cursor:default");
         this.scene.start("WorldScene", {male: currentSelectedMale, female: currentSelectedFemale }); 
     })
   }

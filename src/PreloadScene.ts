@@ -1,28 +1,32 @@
 import Phaser from "phaser";
-const assetFiles = import.meta.glob("./assets/*.png", { 
+import viennaBackground from "./assets/viennaBackground.png";
+import cursor from "./assets/cursor.png";
+
+const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
   query: "?url" ,
   import: "default"
 });
 
 export class PreloadScene extends Phaser.Scene {
+  
   constructor() {
     super({ key: "PreloadScene" });
   }
   preload() {
     Object.entries(assetFiles).forEach(([filePath, url]) => {
       const texture = filePath.split("/").pop()?.replace(".png", "") || "";
-      if (texture.includes("Background")) {
-        console.log("yes");
-        this.load.image(texture, url);
-      } else this.load.spritesheet(texture, url, {frameWidth:32, frameHeight:32});
-    })
+     this.load.spritesheet(texture, url, {frameWidth:32, frameHeight:32});
+    });
+    this.load.image("viennaBackground", viennaBackground);
+    this.load.image("cursor", cursor);
   }
   create() {
+    
     Object.keys(assetFiles).forEach((filePath) =>   {
       const texture = filePath.split("/").pop()?.replace(".png", "") || "";
-      console.log(texture);
-      if (texture.includes("Background")) return;
+      
+      
       const anim = texture.replace("idle", "anim");
       const totalFrames = this.textures.get(texture).frameTotal - 2;
 
@@ -32,7 +36,9 @@ export class PreloadScene extends Phaser.Scene {
         frameRate: 5,
         repeat: -1,
       })
-    })
-    this.scene.start("CharactersScene");
+    });
+    
+    this.scene.launch("CursorScene");
+    this.scene.start("MainMenuScene");
   }
 }

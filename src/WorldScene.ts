@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 
+
 interface playerProps {
   name: string,
   texture: string,
@@ -38,18 +39,14 @@ class GameLocation {
         this.speed = speed;
         this.data = data;
         this.target = target;
-
-        this.sprite.setInteractive({ useHandCursor: true });
+        this.sprite.setInteractive();
         this.sprite.on("pointerdown", this.moveToLocation, this);
-        this.sprite.on("pointerover", () => {
-          this.sprite.setTint(0x4169E1);
-        })
-        this.sprite.on("pointerout", () => {
-          this.sprite.clearTint();
-        })
+        this.sprite.on("pointerover", () => this.scene.game.events.emit("cursor:hover"));
+        this.sprite.on("pointerout", () => this.scene.game.events.emit("cursor:default"));
       }
 
       private moveToLocation():void {
+        this.scene.game.events.emit("cursor:default");
         this.scene.tweens.killTweensOf(this.target);
         const distance = Phaser.Math.Distance.Between(
             this.target.x,
@@ -75,6 +72,7 @@ class GameLocation {
 
 export class WorldScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container;
+  
   constructor() {
     super({ key: "WorldScene" });
     
@@ -83,9 +81,9 @@ export class WorldScene extends Phaser.Scene {
   create(data:playersProps) {
     const { width, height } = this.scale;
 
-    this.add.image(0, 0, "viennaBackground_idle").setOrigin(0, 0);
+    this.add.image(0, 0, "viennaBackground").setOrigin(0, 0);
 
-
+    
   const player1Sprite = this.add.sprite(0,0,data.male.texture).play(data.male.anim);
   const player2Sprite = this.add.sprite(15, 0, data.female.texture).play(data.female.anim);
 
