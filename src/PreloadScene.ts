@@ -1,8 +1,11 @@
 import Phaser from "phaser";
 import viennaBackground from "./assets/viennaBackground.png";
 import homeBackround from "./assets/homeBackground.png";
+import menuBackground from "./assets/menuBackground.png";
 import cursor from "./assets/cursor.png";
 import confirm from "./assets/confirm.png";
+import game_title from "./assets/game_title.png";
+import start from "./assets/startBtn.png";
 
 const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
@@ -27,8 +30,11 @@ export class PreloadScene extends Phaser.Scene {
     });
     this.load.image("viennaBackground", viennaBackground);
     this.load.image("homeBackground",homeBackround);
+    this.load.image("menuBackground", menuBackground);
     this.load.image("cursor", cursor);
     this.load.spritesheet("confirm", confirm, {frameWidth:64, frameHeight: 32});
+    this.load.spritesheet("start", start, {frameWidth:64, frameHeight:32});
+    this.load.spritesheet("game_title", game_title, {frameWidth:64, frameHeight:32});
     Object.entries(names).forEach(([filePath, url]) => {
       const texture = filePath.split("/").pop()?.replace(".png", "") || "";
      this.load.image(texture, url);
@@ -51,6 +57,13 @@ export class PreloadScene extends Phaser.Scene {
         repeat: -1,
       })
     });
+
+    this.anims.create({
+      key: "game_title_anim",
+      frames: this.anims.generateFrameNumbers("game_title", {start:0, end: 2}),
+      frameRate: 3,
+      repeat: -1,
+    })
 
     this.scene.launch("CursorScene");
     this.scene.start("MainMenuScene");
