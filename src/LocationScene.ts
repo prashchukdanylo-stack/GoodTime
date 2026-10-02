@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 interface LocationProps {
-    name: string
+    key: string
 }
 
 export class LocationScene extends Phaser.Scene {
@@ -9,9 +9,6 @@ export class LocationScene extends Phaser.Scene {
     super({ key: "LocationScene" });
   }
   create(data:LocationProps) {
-    this.add.text(200, 200, `The minigame about ${data.name} is now.`, {
-      color: "#c91d1d",
-      fontSize: "32px",
-    });
+    this.scene.start(data.key);
   }
 }

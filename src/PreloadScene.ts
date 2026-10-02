@@ -2,11 +2,12 @@ import Phaser from "phaser";
 import viennaBackground from "./assets/viennaBackground.png";
 import homeBackround from "./assets/homeBackground.png";
 import menuBackground from "./assets/menuBackground.png";
+import attracionBackground from "./assets/attractionBackground.png";
 import cursor from "./assets/cursor.png";
 import confirm from "./assets/confirm.png";
 import game_title from "./assets/game_title.png";
 import start from "./assets/startBtn.png";
-
+import target from "./assets/target.png";
 const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
   query: "?url" ,
@@ -31,7 +32,9 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("viennaBackground", viennaBackground);
     this.load.image("homeBackground",homeBackround);
     this.load.image("menuBackground", menuBackground);
+    this.load.image("attractionBackground", attracionBackground);
     this.load.image("cursor", cursor);
+    this.load.image("target", target);
     this.load.spritesheet("confirm", confirm, {frameWidth:64, frameHeight: 32});
     this.load.spritesheet("start", start, {frameWidth:64, frameHeight:32});
     this.load.spritesheet("game_title", game_title, {frameWidth:64, frameHeight:32});

@@ -95,15 +95,15 @@ export class WorldScene extends Phaser.Scene {
     this.player.setScale(4);
 
     const locationsConfig: LocationConfig[] = [
-      { name: "attraction", key: "attraction", x: width - 170, y: 250 },
+      { name: "attraction", key: "PraterScene", x: width - 170, y: 250 },
       { name: "albertina",  key: "albertina",  x: 180,          y: 440 , scale: 4},
       { name: "stephan",    key: "stephan",    x: width / 2 + 50,   y: 500 },
       { name: "schonbrun",  key: "schonbrun",  x: 110,         y: 250, scale: 4 },
       { name: "belvedere",  key: "belvedere",  x: width - 130, y: 440, scale:4 },
     ]
     locationsConfig.forEach(({name, key, x, y, scale =5}) => {
-      const sprite = this.add.sprite(x, y, `${key}_idle`).play(`${key}_anim`).setScale(scale);
-      new GameLocation(this, sprite, {name}, this.player);
+      const sprite = this.add.sprite(x, y, `${name}_idle`).play(`${name}_anim`).setScale(scale);
+      new GameLocation(this, sprite, {key}, this.player);
     })
    
   }
