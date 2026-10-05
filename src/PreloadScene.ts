@@ -8,6 +8,9 @@ import confirm from "./assets/confirm.png";
 import game_title from "./assets/game_title.png";
 import start from "./assets/startBtn.png";
 import target from "./assets/target.png";
+import gameOver from "./assets/game_over.png";
+import victory from "./assets/victory.png";
+import menuIcon from "./assets/menu_icon.png";
 const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
   query: "?url" ,
@@ -35,13 +38,17 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("attractionBackground", attracionBackground);
     this.load.image("cursor", cursor);
     this.load.image("target", target);
+    this.load.image("game_over", gameOver);
+    this.load.image("victory", victory);
+    this.load.image("menu_icon", menuIcon);
+
     this.load.spritesheet("confirm", confirm, {frameWidth:64, frameHeight: 32});
     this.load.spritesheet("start", start, {frameWidth:64, frameHeight:32});
     this.load.spritesheet("game_title", game_title, {frameWidth:64, frameHeight:32});
+
     Object.entries(names).forEach(([filePath, url]) => {
       const texture = filePath.split("/").pop()?.replace(".png", "") || "";
      this.load.image(texture, url);
-     console.log(texture);
     })
   }
   create() {
@@ -53,12 +60,15 @@ export class PreloadScene extends Phaser.Scene {
       const anim = texture.replace("idle", "anim");
       const totalFrames = this.textures.get(texture).frameTotal - 2;
 
-      this.anims.create({
+      if (totalFrames > 1) {
+        this.anims.create({
         key: anim,
         frames: this.anims.generateFrameNumbers(texture, {start: 0, end: Math.max(0,totalFrames)}),
         frameRate: 5,
         repeat: -1,
       })
+      }
+      
     });
 
     this.anims.create({

@@ -82,7 +82,13 @@ export class WorldScene extends Phaser.Scene {
     const { width, height } = this.scale;
 
     this.add.image(0, 0, "viennaBackground").setOrigin(0, 0);
+  const menuButton = this.add.image(30, 30, "menu_icon").setScale(2).setInteractive().on("pointerdown", () => {
+      this.scene.start("MainMenuScene");
+      this.game.events.emit("cursor:default");
+    });
 
+  menuButton.on("pointerover", () => this.game.events.emit("cursor:hover"));
+  menuButton.on("pointerout", () => this.game.events.emit("cursor:default"));
     
   const player1Sprite = this.add.sprite(0,0,data.male.texture).play(data.male.anim);
   const player2Sprite = this.add.sprite(15, 0, data.female.texture).play(data.female.anim);
@@ -103,7 +109,7 @@ export class WorldScene extends Phaser.Scene {
     ]
     locationsConfig.forEach(({name, key, x, y, scale =5}) => {
       const sprite = this.add.sprite(x, y, `${name}_idle`).play(`${name}_anim`).setScale(scale);
-      new GameLocation(this, sprite, {key}, this.player);
+      new GameLocation(this, sprite, {key, data}, this.player);
     })
    
   }
