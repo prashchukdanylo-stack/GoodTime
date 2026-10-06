@@ -20,10 +20,14 @@ export class PraterScene extends Phaser.Scene {
   private canThrow: boolean = true;
   private attempts: number = 10;
   private isGameOver: boolean = false;
+  private maleSprite!: Phaser.GameObjects.Sprite;
+  private femaleSprite!: Phaser.GameObjects.Sprite;
+  private currentData!: playersProps;
   constructor() {
     super({ key: "PraterScene" });
   }
   create(data: playersProps) {
+    this.currentData = data;
     this.attempts = 10;
     this.score = 0;
     this.targets = [];
@@ -36,8 +40,8 @@ export class PraterScene extends Phaser.Scene {
     this.add.image(0, 0, "attractionBackground").setOrigin(0, 0);
     this.add.sprite(500,250, "target_place_idle").play("target_place_anim").setScale(15);
     console.log(data.male.texture);
-    this.add.sprite(this.scale.width/2,this.scale.height - 60, `${data.male.name}_baseball_idle`).setScale(9);
-    this.add.sprite(200,400, `${data.female.name}_baseball_idle`).setScale(9);
+    this.maleSprite = this.add.sprite(this.scale.width/2,this.scale.height - 60, `${data.male.name}_baseball_idle`).play(`${data.male.name}_baseball_anim`).setScale(9);
+     this.femaleSprite = this.add.sprite(200,400, `${data.female.name}_baseball_idle`).play(`${data.female.name}_baseball_anim`).setScale(9);
     this.scoreTablet = this.add.text(
       40,
       20,
@@ -104,6 +108,7 @@ export class PraterScene extends Phaser.Scene {
     const startX = this.scale.width/2;
     const startY = this.scale.height - 60;
     const ball = this.add.sprite(startX, startY, "baseball_idle").play("baseball_anim").setScale(2);
+    this.maleSprite.stop().setTexture(`${this.currentData.male.name}_baseball_throw_idle`);
 
     const destinationY = targetY - 20;
 
@@ -116,6 +121,11 @@ export class PraterScene extends Phaser.Scene {
       duration: 450,
       onComplete: () => {
         this.checkBallHit(ball);
+        this.time.delayedCall(20, () => {
+        if (!this.isGameOver) {
+          this.maleSprite.play(`${this.currentData.male.name}_baseball_anim`);
+        }
+      });
       }
       
     });
@@ -184,6 +194,10 @@ export class PraterScene extends Phaser.Scene {
 
   private finishGame(message: string) {
     this.add.image(this.scale.width / 2 + 30, 80, message).setScale(5);
+    if (message === "victory") {
+      this.femaleSprite.play(`${this.currentData.female.name}_baseball_victory_anim`);
+      this.maleSprite.play(`${this.currentData.male.name}_baseball_victory_anim`);
+    }
     this.restartButton = this.add.text(40, 250, "Restart");
     this.restartButton.setInteractive();
     this.restartButton.on('pointerdown', () => {

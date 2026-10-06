@@ -67,10 +67,10 @@ export class CharactersScene extends Phaser.Scene {
       this.changeFemale(1);
     })
 
-    this.malePreview = this.add.sprite(200, 300, maleCharacters[0].texture).play(maleCharacters[0].anim).setScale(8);
-    this.maleName = this.add.image(200, 430, "Greg_name");
-    this.femalePreview = this.add.sprite(700, 300, femaleCharacters[0].texture).play(femaleCharacters[0].anim).setScale(8);
-    this.femaleName = this.add.image(700, 430, "Laura_name");
+    this.malePreview = this.add.sprite(200, 300, maleCharacters[this.maleIndex].texture).play(maleCharacters[this.maleIndex].anim).setScale(8);
+    this.maleName = this.add.image(200, 430, maleCharacters[this.maleIndex].nameImg);
+    this.femalePreview = this.add.sprite(700, 300, femaleCharacters[this.femaleIndex].texture).play(femaleCharacters[this.femaleIndex].anim).setScale(8);
+    this.femaleName = this.add.image(700, 430, femaleCharacters[this.femaleIndex].nameImg);
 
     confirm.on("pointerdown", () => {
         const currentSelectedMale = maleCharacters[this.maleIndex];
