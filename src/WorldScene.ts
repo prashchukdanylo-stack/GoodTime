@@ -1,14 +1,14 @@
 import Phaser from "phaser";
 
 
-interface playerProps {
+interface PlayerProps {
   name: string,
   texture: string,
   anim: string
 }
-interface playersProps {
-  male: playerProps,
-  female: playerProps
+interface PlayersProps {
+  male: PlayerProps,
+  female: PlayerProps
 }
 
 interface LocationConfig {
@@ -22,11 +22,13 @@ interface LocationConfig {
 
 
 class GameLocation {
+      private isCompleted: boolean;
       private data:object;
      private scene: Phaser.Scene;
       public sprite: Phaser.GameObjects.Sprite;
       private target: Phaser.GameObjects.Container;
       private speed: number;
+      private starIcon?: Phaser.GameObjects.Image;
       constructor(
         scene: Phaser.Scene,
         sprite: Phaser.GameObjects.Sprite,
@@ -39,10 +41,15 @@ class GameLocation {
         this.speed = speed;
         this.data = data;
         this.target = target;
+        this.isCompleted = this.scene.registry.get(`${this.sprite.texture.key}_completed`);
         this.sprite.setInteractive();
         this.sprite.on("pointerdown", this.moveToLocation, this);
         this.sprite.on("pointerover", () => this.scene.game.events.emit("cursor:hover"));
         this.sprite.on("pointerout", () => this.scene.game.events.emit("cursor:default"));
+
+        if (this.isCompleted && !this.starIcon) {
+          this.createStar();
+        }
       }
 
       private moveToLocation():void {
@@ -66,6 +73,10 @@ class GameLocation {
             },
           });
       } 
+
+      private createStar() {
+        this.starIcon = this.scene.add.image(this.sprite.x - 50, this.sprite.y + 40, "coin").setScale(2);
+      }
     }
    
     
@@ -78,7 +89,7 @@ export class WorldScene extends Phaser.Scene {
     
   }
   
-  create(data:playersProps) {
+  create(data:PlayersProps) {
     const { width, height } = this.scale;
 
     this.add.image(0, 0, "viennaBackground").setOrigin(0, 0);

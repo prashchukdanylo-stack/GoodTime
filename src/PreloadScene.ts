@@ -11,6 +11,12 @@ import target from "./assets/target.png";
 import gameOver from "./assets/game_over.png";
 import victory from "./assets/victory.png";
 import menuIcon from "./assets/menu_icon.png";
+import coin from "./assets/coin.png";
+import round from "./assets/round.png";
+import attempts from "./assets/attempts.png";
+import hit from "./assets/hit.png";
+import restart from "./assets/restart.png";
+import go_to_map from "./assets/go_to_map.png";
 const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
   query: "?url" ,
@@ -41,7 +47,12 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("game_over", gameOver);
     this.load.image("victory", victory);
     this.load.image("menu_icon", menuIcon);
-
+    this.load.image("coin", coin);
+    this.load.image("round", round);
+    this.load.image("attempts", attempts);
+    this.load.image("hit", hit);
+    this.load.spritesheet("go_to_map", go_to_map, {frameWidth:32, frameHeight: 32});
+    this.load.spritesheet("restart", restart, {frameWidth:64, frameHeight: 32});
     this.load.spritesheet("confirm", confirm, {frameWidth:64, frameHeight: 32});
     this.load.spritesheet("start", start, {frameWidth:64, frameHeight:32});
     this.load.spritesheet("game_title", game_title, {frameWidth:64, frameHeight:32});

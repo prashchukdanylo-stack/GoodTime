@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-
+import { createInteractiveButton } from "./ui/createInteractiveButton";
 const maleCharacters = [
       {name: "Greg", texture: "Greg_idle", anim: "Greg_anim", nameImg: "Greg_name"},
       {name: "Damon", texture: "Damon_idle", anim: "Damon_anim", nameImg: "Damon_name"},
@@ -45,14 +45,19 @@ export class CharactersScene extends Phaser.Scene {
     const rightArrowMale = this.add.sprite(250, 440, "arrowRight_idle").setInteractive().setScale(2).play("arrowRight_anim");
     const leftArrowFemale = this.add.sprite(640, 440, "arrowLeft_idle").setInteractive().setScale(2).play("arrowLeft_anim");
     const rightArrowFemale = this.add.sprite(760, 440, "arrowRight_idle").setInteractive().setScale(2).play("arrowRight_anim");
-    const confirm = this.add.sprite(440, 270, "confirm").setInteractive().setScale(2);
+    
+    createInteractiveButton(this,350, 230, "confirm", () => {
+          const currentSelectedMale = maleCharacters[this.maleIndex];
+        const currentSelectedFemale = femaleCharacters[this.femaleIndex];
+        this.game.events.emit("cursor:default");
+        this.scene.start("WorldScene", {male: currentSelectedMale, female: currentSelectedFemale }); 
+       });
+    const interactiveButtons = [leftArrowFemale, rightArrowFemale, leftArrowMale, rightArrowMale];
 
-    const interactiveButtons = [leftArrowFemale, rightArrowFemale, leftArrowMale, rightArrowMale, confirm];
-
-    interactiveButtons.forEach((element) => {
-      element.on("pointerover", () => this.game.events.emit("cursor:hover"));
-      element.on("pointerout", () => this.game.events.emit("cursor:default"));
-    })
+       interactiveButtons.forEach(((button) => {
+        button.on("pointerover", () => this.game.events.emit("cursor:hover"));
+        button.on("pointerout", () => this.game.events.emit("cursor:default"));
+       }))
     leftArrowMale.on("pointerdown", () => {
       this.changeMale(-1);
     });
@@ -71,14 +76,5 @@ export class CharactersScene extends Phaser.Scene {
     this.maleName = this.add.image(200, 430, maleCharacters[this.maleIndex].nameImg);
     this.femalePreview = this.add.sprite(700, 300, femaleCharacters[this.femaleIndex].texture).play(femaleCharacters[this.femaleIndex].anim).setScale(8);
     this.femaleName = this.add.image(700, 430, femaleCharacters[this.femaleIndex].nameImg);
-
-    confirm.on("pointerdown", () => {
-        const currentSelectedMale = maleCharacters[this.maleIndex];
-        const currentSelectedFemale = femaleCharacters[this.femaleIndex];
-        this.game.events.emit("cursor:default");
-        this.scene.start("WorldScene", {male: currentSelectedMale, female: currentSelectedFemale }); 
-    })
-    confirm.on("pointerover", () => confirm.setFrame(1));
-    confirm.on("pointerout", ()=> confirm.setFrame(0));
   }
 }
