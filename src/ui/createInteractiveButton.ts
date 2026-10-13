@@ -11,7 +11,10 @@ export function createInteractiveButton(
     .sprite(x, y, image)
     .setInteractive().setScale(3).setOrigin(0,0);
 
-  button.on("pointerdown", onClick);
+  button.on("pointerdown", () => {
+    onClick();
+    scene.game.events.emit("cursor:default");
+});
   button.on("pointerover", () =>{scene.game.events.emit("cursor:hover");
     button.setFrame(1);
   });

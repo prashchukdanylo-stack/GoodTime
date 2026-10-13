@@ -17,6 +17,8 @@ import attempts from "./assets/attempts.png";
 import hit from "./assets/hit.png";
 import restart from "./assets/restart.png";
 import go_to_map from "./assets/go_to_map.png";
+import bush from "./assets/bush.png";
+
 const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
   query: "?url" ,
@@ -51,6 +53,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("round", round);
     this.load.image("attempts", attempts);
     this.load.image("hit", hit);
+    this.load.image("bush", bush);
     this.load.spritesheet("go_to_map", go_to_map, {frameWidth:32, frameHeight: 32});
     this.load.spritesheet("restart", restart, {frameWidth:64, frameHeight: 32});
     this.load.spritesheet("confirm", confirm, {frameWidth:64, frameHeight: 32});
@@ -88,7 +91,19 @@ export class PreloadScene extends Phaser.Scene {
       frameRate: 3,
       repeat: -1,
     })
+    this.anims.create({
+  key: "spikes_pop_up",
+  frames: this.anims.generateFrameNumbers("spike_idle", { start: 0, end: 3 }),
+  frameRate: 12,
+  repeat: 0,
+});
 
+this.anims.create({
+  key: "spikes_retract",
+  frames: this.anims.generateFrameNumbers("spike_idle", { start: 3, end: 0 }),
+  frameRate: 12,
+  repeat: 0,
+});
     this.scene.launch("CursorScene");
     this.scene.start("MainMenuScene");
   }

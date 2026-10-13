@@ -6,6 +6,7 @@ import {LocationScene } from "./LocationScene";
 import { PreloadScene } from "./PreloadScene";
 import { CursorScene } from "./CursorScene";
 import { PraterScene } from "./minigames/PraterScene";
+import { ShconbrunScene } from "./minigames/SchonbrunScene";
 new Phaser.Game({
   width: 900,
   height: 600,
@@ -25,5 +26,5 @@ new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [PreloadScene,MainMenuScene, CharactersScene, WorldScene, LocationScene,CursorScene, PraterScene],
+  scene: [PreloadScene,MainMenuScene, CharactersScene, WorldScene, LocationScene,CursorScene, PraterScene, ShconbrunScene],
 });

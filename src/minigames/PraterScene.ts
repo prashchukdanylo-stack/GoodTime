@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
+import { showNextRoundBanner } from "../ui/nextRound";
 export interface PlayerProps {
   name: string;
   texture: string;
@@ -31,6 +32,22 @@ export interface GameBounds {
 
 export class PraterScene extends Phaser.Scene {
   private readonly rounds: readonly RoundConfig[] = [
+    {
+      targetScore: 1,
+      attempts: 4,
+      rowsY: [Phaser.Math.Between(180,320)],
+      minDuration: 1200,
+      maxDuration: 2000,
+      gameMode: "basic",
+    },
+    {
+      targetScore: 2,
+      attempts: 4,
+      rowsY: [280, 180],
+      minDuration: 1200,
+      maxDuration: 1800,
+      gameMode: "medium",
+    },
     {
       targetScore: 3,
       attempts: 8,
@@ -386,24 +403,13 @@ export class PraterScene extends Phaser.Scene {
     this.canThrow = false;
     this.currentRoundIndex++;
 
-    const roundBanner = this.add
-      .text(
-        this.scale.width / 2,
-        this.scale.height / 2,
-        `Round ${this.currentRoundIndex + 1}!`,
-        {
-          fontSize: "32px",
-          color: "#ffff00",
-          stroke: "#000000",
-          strokeThickness: 4,
-        }
-      )
-      .setOrigin(0.5);
-
-    this.time.delayedCall(1500, () => {
-      roundBanner.destroy();
-      this.startRound(this.currentRoundIndex);
-    });
+    showNextRoundBanner({
+    scene: this,
+    nextIndex: this.currentRoundIndex,
+    onStart: (index) => {
+      this.startRound(index);
+    },
+  });
   }
 
   private finishGame(message: "victory" | "game_over"): void {

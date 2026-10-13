@@ -115,7 +115,7 @@ export class WorldScene extends Phaser.Scene {
       { name: "attraction", key: "PraterScene", x: width - 170, y: 250 },
       { name: "albertina",  key: "albertina",  x: 180,          y: 440 , scale: 4},
       { name: "stephan",    key: "stephan",    x: width / 2 + 50,   y: 500 },
-      { name: "schonbrun",  key: "schonbrun",  x: 110,         y: 250, scale: 4 },
+      { name: "schonbrun",  key: "SchonbrunScene",  x: 110,         y: 250, scale: 4 },
       { name: "belvedere",  key: "belvedere",  x: width - 130, y: 440, scale:4 },
     ]
     locationsConfig.forEach(({name, key, x, y, scale =5}) => {
