@@ -4,324 +4,453 @@ import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
 
 export class ShconbrunScene extends Phaser.Scene {
-    private roundIndex: number = 0;
-    private currentData!: PlayersProps;
-    private walls!: Phaser.Physics.Arcade.StaticGroup;
-    private goalPlatform!: Phaser.GameObjects.Sprite;
-    private groundBg?: Phaser.GameObjects.Rectangle;
-    private tileSize = 32;
-    private player !: Phaser.Physics.Arcade.Sprite;
-    private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-    private isEnd: boolean = false;
-    private isRound: boolean = false;
-    private wasdkeys!: {
-        W: Phaser.Input.Keyboard.Key,
-        A: Phaser.Input.Keyboard.Key,
-        S: Phaser.Input.Keyboard.Key,
-        D: Phaser.Input.Keyboard.Key,
-    }
-    private spikes: Phaser.GameObjects.Sprite[] = [];
-    private spikeTimer?: Phaser.Time.TimerEvent;
-    private playerSpeed: number = 140;
-    private activeDelayedCalls: Phaser.Time.TimerEvent[] = [];
-    // Карта 1 (17x13)
-private readonly mazeGrid1: number[][] = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 4, 0, 1, 0, 0, 1], // шип на проході праворуч
-  [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1],
-  [1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-  [1, 0, 1, 0, 1, 0, 1, 3, 4, 1, 0, 1, 0, 1, 1, 0, 1], // шип перед фінішем
-  [1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1],
-  [1, 1, 1, 0, 1, 0, 4, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1], // шип у нижньому коридорі
-  [1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
-  [1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
+  private roundIndex: number = 0;
+  private currentData!: PlayersProps;
+  private walls!: Phaser.Physics.Arcade.StaticGroup;
+  private goalPlatform!: Phaser.GameObjects.Sprite;
+  private groundBg?: Phaser.GameObjects.Rectangle;
+  private readonly tileSize = 32;
+  private player!: Phaser.Physics.Arcade.Sprite;
+  private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  private isEnd: boolean = false;
+  private isRound: boolean = false;
+  private wasdkeys!: {
+    W: Phaser.Input.Keyboard.Key;
+    A: Phaser.Input.Keyboard.Key;
+    S: Phaser.Input.Keyboard.Key;
+    D: Phaser.Input.Keyboard.Key;
+  };
+  private spikes: Phaser.GameObjects.Sprite[] = [];
+  private enemies: Phaser.Physics.Arcade.Sprite[] = [];
+  private spikeTimer?: Phaser.Time.TimerEvent;
+  private readonly playerSpeed: number = 140;
+  private readonly enemySpeed: number = 50;
+  private activeDelayedCalls: Phaser.Time.TimerEvent[] = [];
+  private enemyTimers: Phaser.Time.TimerEvent[] = [];
+  private readonly mazeGrid1: number[][] = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 5, 1],
+    [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+    [1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 3, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+    [1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 5, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 5, 0, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ];
 
-// Карта 2 (19x15)
-private readonly mazeGrid2: number[][] = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 2, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1],
-  [1, 0, 0, 0, 1, 3, 1, 0, 4, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1], // шип на підході до центру
-  [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 4, 1, 0, 1, 0, 0, 0, 1], // шип біля нижньої петлі
-  [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1],
-  [1, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1], // шип на нижній прямій
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
+  private readonly mazeGrid2: number[][] = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 0, 0, 1, 0, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 5, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1],
+    [1, 0, 0, 5, 1, 3, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1],
+    [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1],
+    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 5, 0, 0, 1],
+    [1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ];
 
-// Карта 3 (23x17)
-private readonly mazeGrid3: number[][] = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-  [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
-  [1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1],
-  [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
-  [1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1], // шип під фінішем
-  [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1],
-  [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 4, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1], // шип у коридорі
-  [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
-  [1, 2, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1], // шип одразу біля старту
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
+  private readonly mazeGrid3: number[][] = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 0, 1],
+    [1, 5, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 1, 0, 0, 1, 0, 5, 0, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+    [1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 5, 1],
+    [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+    [1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1],
+    [1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1],
+    [1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 1, 0, 1, 0, 0, 5, 0, 0, 0, 0, 1, 0, 0, 5, 1, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+    [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 5, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ];
 
-// Карта 4 (25x21)
-private readonly mazeGrid4: number[][] = [
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  [1, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-  [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-  [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
-  [1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
-  [1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 4, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1], // шип
-  [1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
-  [1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-  [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-  [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 3, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
-  [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 4, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1], // шип під фінішем
-  [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
-  [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
-  [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
-  [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
-  [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
-  [1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-  [1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1], // шип у довгому низу
-  [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-];
-  private mazeRounds = [this.mazeGrid1, this.mazeGrid2, this.mazeGrid3, this.mazeGrid4];
-    constructor() {
-        super({key: "SchonbrunScene"})
-    }
-    create(data: PlayersProps) {
-        this.isEnd = false;
-        this.currentData = data;
-        this.roundIndex = 0;
-
-
-
-        if (this.input.keyboard) {
-            this.cursors = this.input.keyboard.createCursorKeys();
-            this.wasdkeys = this.input.keyboard.addKeys({
-                W: Phaser.Input.Keyboard.KeyCodes.W,
-                A: Phaser.Input.Keyboard.KeyCodes.A,
-                S: Phaser.Input.Keyboard.KeyCodes.S,
-                D: Phaser.Input.Keyboard.KeyCodes.D,
-            }) as any;
-        }
-
-        this.startRound(this.roundIndex);
-        this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-              this.game.events.emit("cursor:default");
-              this.clearCurrentMaze();
-            });
-        
-    }
-
-    clearCurrentMaze() {
-        if (this.walls) {
-    this.walls.destroy(true); // Повністю знищує групу разом із фізичними тілами
+  private readonly mazeGrid4: number[][] = [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 0, 0, 5, 1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 5, 0, 1],
+    [1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
+    [1, 0, 1, 1, 1, 1, 0, 1, 5, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+    [1, 5, 0, 5, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 5, 1, 0, 0, 5, 0, 1],
+    [1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 5, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 5, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+    [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 3, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 5, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1],
+    [1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 1, 0, 5, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 5, 1, 0, 1],
+    [1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 5, 0, 1],
+    [1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 5, 1, 1, 0, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 1, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ];
+  private mazeRounds = [
+    this.mazeGrid1,
+    this.mazeGrid2,
+    this.mazeGrid3,
+    this.mazeGrid4,
+  ];
+  constructor() {
+    super({ key: "SchonbrunScene" });
   }
-        if (this.spikeTimer) {
-            this.spikeTimer.destroy();
-            this.spikeTimer = undefined;
-        }
+  create(data: PlayersProps) {
+    this.isEnd = false;
+    this.currentData = data;
+    this.roundIndex = 0;
 
-        this.activeDelayedCalls.forEach((call) => {
-            call.destroy();
-        })
-        this.activeDelayedCalls = [];
-        this.spikes.forEach((spike) => {
-            spike.destroy();
-        })
-
-        this.spikes = [];
-        this.groundBg?.destroy();
-        this.player?.destroy();
-        this.goalPlatform?.destroy();
-
+    if (this.input.keyboard) {
+      this.cursors = this.input.keyboard.createCursorKeys();
+      this.wasdkeys = this.input.keyboard.addKeys({
+        W: Phaser.Input.Keyboard.KeyCodes.W,
+        A: Phaser.Input.Keyboard.KeyCodes.A,
+        S: Phaser.Input.Keyboard.KeyCodes.S,
+        D: Phaser.Input.Keyboard.KeyCodes.D,
+      }) as any;
     }
 
-    startRound(roundIndex: number) {
-        this.isRound = false;
-        this.roundIndex = roundIndex;
+    this.startRound(this.roundIndex);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.game.events.emit("cursor:default");
+      this.clearCurrentMaze();
+    });
+  }
 
-        this.clearCurrentMaze();
+  clearCurrentMaze() {
+    if (this.walls) {
+      this.walls.destroy(true);
+    }
+    if (this.spikeTimer) {
+      this.spikeTimer.destroy();
+      this.spikeTimer = undefined;
+    }
 
+    this.activeDelayedCalls.forEach((call) => {
+      call.destroy();
+    });
+    this.activeDelayedCalls = [];
+    this.spikes.forEach((spike) => {
+      spike.destroy();
+    });
+    this.enemies.forEach((enemy) => {
+      enemy.destroy();
+    });
+    this.enemyTimers.forEach((timer) => {
+      timer.destroy();
+    });
+    this.enemyTimers = [];
+    this.enemies = [];
+    this.spikes = [];
+    this.groundBg?.destroy();
+    this.player?.destroy();
+    this.goalPlatform?.destroy();
+  }
 
-        const mazeWidth = this.mazeRounds[roundIndex][0].length * this.tileSize;
-        const mazeHeight = this.mazeRounds[roundIndex].length * this.tileSize;
+  private generateRandomSpikes(
+    grid: number[][],
+    count: number,
+  ): { row: number; col: number }[] {
+    const emptyCells: { row: number; col: number }[] = [];
+    grid.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        if (cell === 0) {
+          emptyCells.push({ row: rowIndex, col: colIndex });
+        }
+      });
+    });
 
+    for (let i = emptyCells.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = emptyCells[i];
+      emptyCells[i] = emptyCells[j];
+      emptyCells[j] = temp;
+    }
+    return emptyCells.slice(0, count);
+  }
 
-        const offsetX = (this.scale.width - mazeWidth) / 2;
-        const offsetY = (this.scale.height - mazeHeight) / 2;
+  private startRound(roundIndex: number) {
+    this.isRound = false;
+    this.roundIndex = roundIndex;
+    this.cameras.main.setZoom(6);
 
-        let startX = 0;
-        let startY = 0;
+    this.clearCurrentMaze();
+    const currentMap = this.mazeRounds[roundIndex].map((row) => [...row]);
+    const spikeCount = 15 + roundIndex * 3;
+    const randomSpikePositions = this.generateRandomSpikes(
+      currentMap,
+      spikeCount,
+    );
 
-        this.groundBg = this.add.rectangle(
-            offsetX + mazeWidth / 2,
-            offsetY + mazeHeight / 2,
-            mazeWidth,
-            mazeHeight,
-            0xd2b48c
-        );
+    randomSpikePositions.forEach(({ row, col }) => {
+      currentMap[row][col] = 4;
+    });
+    const mazeWidth = this.mazeRounds[roundIndex][0].length * this.tileSize;
+    const mazeHeight = this.mazeRounds[roundIndex].length * this.tileSize;
 
-        this.walls = this.physics.add.staticGroup();
-        this.mazeRounds[roundIndex].forEach((row, rowIndex) => {
-            row.forEach((cell, colIndex) => {
-                const x = offsetX + colIndex * this.tileSize + this.tileSize / 2;
-                const y = offsetY + rowIndex * this.tileSize + this.tileSize /2;
+    const offsetX = (this.scale.width - mazeWidth) / 2;
+    const offsetY = (this.scale.height - mazeHeight) / 2;
 
-                if (cell === 1) {
-                    const hedge = this.add.image(x, y, "bush");
-                    this.physics.add.existing(hedge, true);
-                    this.walls.add(hedge);
-                } 
-                else if (cell === 2) {
-                    startX = x;
-                    startY = y;
-                }
-                else if (cell === 3) {
-                    this.goalPlatform = this.add.sprite(x,y,this.currentData.male.texture);
-                    this.physics.add.existing(this.goalPlatform, true);
-                }
-                else if (cell === 4) {
-                    const spike = this.add.sprite(x,y,"spike_idle");
-                    this.physics.add.existing(spike, true);
-                    spike.setData("isDangerous", false);
-                    this.spikes.push(spike);
-                }
-            })
-        });
+    let startX = 0;
+    let startY = 0;
 
-        this.player = this.physics.add.sprite(startX, startY, this.currentData.female.texture);
-        this.player.body?.setSize(20,20);
-        this.player.setCollideWorldBounds(true);
-        this.spikeTimer = this.time.addEvent({
-            delay: 2000,
+    this.groundBg = this.add.rectangle(
+      offsetX + mazeWidth / 2,
+      offsetY + mazeHeight / 2,
+      mazeWidth,
+      mazeHeight,
+      0xd2b48c,
+    );
+
+    this.walls = this.physics.add.staticGroup();
+    currentMap.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const x = offsetX + colIndex * this.tileSize + this.tileSize / 2;
+        const y = offsetY + rowIndex * this.tileSize + this.tileSize / 2;
+
+        if (cell === 1) {
+          const hedge = this.add.image(x, y, "bush");
+          this.physics.add.existing(hedge, true);
+          this.walls.add(hedge);
+        } else if (cell === 2) {
+          startX = x;
+          startY = y;
+        } else if (cell === 3) {
+          this.goalPlatform = this.add.sprite(
+            x,
+            y,
+            this.currentData.male.texture,
+          );
+          this.physics.add.existing(this.goalPlatform, true);
+        } else if (cell === 4) {
+          let spike;
+          if (
+            currentMap[rowIndex][colIndex - 1] === 1 &&
+            currentMap[rowIndex][colIndex + 1] === 1
+          )
+            spike = this.add.sprite(x, y, "roses_sides_idle");
+          else spike = this.add.sprite(x, y, "roses_down_idle");
+          this.physics.add.existing(spike, true);
+          spike.setData("isDangerous", false);
+          this.spikes.push(spike);
+        } else if (cell === 5) {
+          const enemy = this.physics.add
+            .sprite(x, y, "snake_idle")
+            .play("snake_anim").setScale(0.8, 0.8);
+
+          enemy.body.setSize(20,18);
+          const directions = [
+            { x: -1, y: -1 },
+            { x: 0, y: -1 },
+            { x: 1, y: -1 },
+            { x: -1, y: 0 },
+            { x: 1, y: 0 },
+            { x: -1, y: 1 },
+            { x: 0, y: 1 },
+            { x: 1, y: 1 },
+          ];
+
+          const setRandomDirection = () => {
+            const dir =
+              directions[Math.floor(Math.random() * directions.length)];
+            dir.x === -1 ? enemy.setFlipX(true) : enemy.setFlipX(false);
+            enemy.setVelocity(this.enemySpeed * dir.x, this.enemySpeed * dir.y);
+          };
+
+          setRandomDirection();
+          enemy.setBounce(1, 1);
+          this.enemies.push(enemy);
+
+          const enemyTimer = this.time.addEvent({
+            delay: Phaser.Math.Between(2000, 4000),
             loop: true,
-            callback: () => {
-                this.spikes.forEach((spike) => {
-                    spike.play("spikes_pop_up");
+            callback: setRandomDirection,
+          });
+          this.enemyTimers.push(enemyTimer);
+        }
+      });
+    });
 
-                    const dangerousTimer = this.time.delayedCall(150, () => {
-                        spike.setData("isDangerous",true);
-                    })
+    this.player = this.physics.add
+      .sprite(startX, startY, this.currentData.female.texture)
+      .play(this.currentData.female.anim);
+    if (this.player.body) {
+      const hitBoxWidth = 10;
+      const hitBoxHeight = 8;
+      const offsetX = (this.player.width - hitBoxWidth) / 2;
+      const offsetY = this.player.height - hitBoxHeight - 2;
 
-                    const retractTimer = this.time.delayedCall(1200, () => {
-                        spike.setData("isDangerous", false);
-                        spike.play("spikes_retract");
-                    });
+      this.player.body.setSize(hitBoxWidth, hitBoxHeight);
+      this.player.body.setOffset(offsetX, offsetY);
+    }
+    this.player.setCollideWorldBounds(true);
+    this.cameras.main.startFollow(this.player);
 
-                    this.activeDelayedCalls.push(dangerousTimer, retractTimer);
-                })
-            }
-        });
+    this.spikeTimer = this.time.addEvent({
+      delay: 2000,
+      loop: true,
+      callback: () => {
         this.spikes.forEach((spike) => {
-            this.physics.add.overlap(this.player, spike, () => {
-                if (spike.getData("isDangerous")) {
-                    this.handleSpikeHit();
-                }
-            })
-        })
-        this.physics.add.collider(this.player, this.walls);
-        this.physics.add.overlap(this.player, this.goalPlatform, this.onReachGoal, undefined, this);
+          const texture = spike.texture.key.replace("_idle", "");
+          console.log(texture);
+          spike.play(`${texture}_pop_up`);
+
+          const dangerousTimer = this.time.delayedCall(150, () => {
+            spike.setData("isDangerous", true);
+          });
+
+          const retractTimer = this.time.delayedCall(1200, () => {
+            spike.setData("isDangerous", false);
+            spike.play(`${texture}_retract`);
+          });
+
+          this.activeDelayedCalls.push(dangerousTimer, retractTimer);
+        });
+      },
+    });
+    this.physics.add.overlap(this.player, this.spikes, (_, spikeObj) => {
+      const spike = spikeObj as Phaser.GameObjects.Sprite;
+      if (spike.getData("isDangerous")) {
+        this.handleSpikeHit();
+      }
+    });
+    this.physics.add.collider(this.enemies, this.walls);
+    this.physics.add.collider(this.player, this.walls);
+    this.physics.add.overlap(this.player, this.enemies, () =>
+      this.handleSpikeHit(),
+    );
+
+    this.physics.add.overlap(
+      this.player,
+      this.goalPlatform,
+      this.onReachGoal,
+      undefined,
+      this,
+    );
+  }
+
+  SetDefaultCamera() {
+    this.cameras.main.setZoom(1).stopFollow();
+    this.cameras.main.scrollX = 0;
+    this.cameras.main.scrollY = 0;
+  }
+
+  handleSpikeHit() {
+    if (this.isEnd || this.isRound) return;
+    this.isEnd = true;
+    this.player.setVelocity(0, 0);
+    this.SetDefaultCamera();
+    this.add.image(this.scale.width / 2 + 30, 80, "game_over").setScale(5);
+
+    createInteractiveButton(this, 400, 150, "restart", () => {
+      this.clearCurrentMaze();
+      this.scene.restart(this.currentData);
+    });
+
+    createInteractiveButton(this, 400, 300, "go_to_map", () => {
+      this.scene.start("WorldScene");
+    });
+  }
+
+  onReachGoal() {
+    if (this.isRound || this.isEnd) return;
+    this.isRound = true;
+    this.SetDefaultCamera();
+    this.player.setVelocity(0, 0);
+    const nextIndex = this.roundIndex + 1;
+
+    if (nextIndex < this.mazeRounds.length) {
+      showNextRoundBanner({
+        scene: this,
+        nextIndex: nextIndex,
+        onStart: (index) => {
+          this.startRound(index);
+        },
+      });
+    } else {
+      this.handleVictory();
+    }
+  }
+  handleVictory() {
+    if (this.isEnd) return;
+    this.isEnd = true;
+    this.player.setVelocity(0, 0);
+    this.add.image(this.scale.width / 2 + 30, 80, "victory").setScale(5);
+    createInteractiveButton(this, 400, 150, "restart", () => {
+      this.scene.restart(this.currentData);
+    });
+
+    createInteractiveButton(this, 400, 300, "go_to_map", () => {
+      this.scene.start("WorldScene");
+    });
+    this.registry.set("schonbrun_idle_completed", true);
+  }
+
+  override update() {
+    if (!this.player || !this.cursors || this.isRound || this.isEnd) return;
+
+    let vx = 0;
+    let vy = 0;
+
+    if (this.cursors.left.isDown || this.wasdkeys.A.isDown) {
+      vx = -this.playerSpeed;
+      this.player.setFlipX(true);
+    } else if (this.cursors.right.isDown || this.wasdkeys.D.isDown) {
+      vx = this.playerSpeed;
+      this.player.setFlipX(false);
+    }
+    if (this.cursors.up.isDown || this.wasdkeys.W.isDown) {
+      vy = -this.playerSpeed;
+    } else if (this.cursors.down.isDown || this.wasdkeys.S.isDown) {
+      vy = this.playerSpeed;
     }
 
-
-    handleSpikeHit() {
-        if (this.isEnd || this.isRound) return;
-        this.isEnd = true;
-        this.player.setVelocity(0,0);
-        this.add.image(this.scale.width / 2 + 30, 80, "game_over").setScale(5);
-
-        createInteractiveButton(this, 400, 150, "restart", () => {
-              this.scene.restart(this.currentData);
-            });
-        
-            createInteractiveButton(this,400, 300, "go_to_map", () => {
-              this.scene.start("WorldScene");
-           });
+    if (vx !== 0 && vy !== 0) {
+      vx *= Math.SQRT1_2;
+      vy *= Math.SQRT1_2;
     }
 
-    onReachGoal() {
-        if (this.isRound || this.isEnd) return;
-        this.isRound = true;
+    this.player.setVelocity(vx, vy);
 
-        this.player.setVelocity(0,0);
-        const nextIndex = this.roundIndex + 1;
+    const animKey = `${this.currentData.female.name}_walk_right_anim`;
+    if (vx !== 0) {
+      if (vx < 0) {
+        this.player.setFlipX(true);
+      } else if (vx > 0) {
+        this.player.setFlipX(false);
+      }
 
-        if (nextIndex < this.mazeRounds.length) {
-            showNextRoundBanner({
-            scene: this,
-            nextIndex: nextIndex,
-            onStart: (index) => {
-                this.startRound(index);
-            }
-        })
-        }
-        else {
-            this.handleVictory();
-        }
+      this.player.play(animKey, true);
+    } else if (vy !== 0) {
+      if (vy > 0) {
+        this.player.play(
+          `${this.currentData.female.name}_walk_down_anim`,
+          true,
+        );
+      } else {
+        this.player.play(`${this.currentData.female.name}_walk_up_anim`, true);
+      }
+    } else {
+      this.player.stop();
+      this.player.play(this.currentData.female.anim, true);
     }
-    handleVictory() {
-        if (this.isEnd) return;
-        this.isEnd = true;
-        this.player.setVelocity(0,0);
-        this.add.image(this.scale.width / 2 + 30, 80, "victory").setScale(5);
-        createInteractiveButton(this, 400, 150, "restart", () => {
-              this.scene.restart(this.currentData);
-            });
-        
-            createInteractiveButton(this,400, 300, "go_to_map", () => {
-              this.scene.start("WorldScene");
-           });
-        this.registry.set("schonbrun_idle_completed", true);
-    }
-
-    override update() {
-        if (!this.player || !this.cursors || this.isRound || this.isEnd) return;
-
-        let vx = 0;
-        let vy = 0;
-
-        if (this.cursors.left.isDown || this.wasdkeys.A.isDown) {
-            vx = -this.playerSpeed;
-            this.player.setFlipX(true);
-        }
-        else if (this.cursors.right.isDown || this.wasdkeys.D.isDown) {
-            vx = this.playerSpeed;
-            this.player.setFlipX(false);
-            }
-        if (this.cursors.up.isDown || this.wasdkeys.W.isDown) {
-            vy = -this.playerSpeed;
-        }
-        else if (this.cursors.down.isDown || this.wasdkeys.S.isDown) {
-            vy = this.playerSpeed;
-        }
-
-        if (vx !== 0 && vy !== 0) {
-            vx *= Math.SQRT1_2;
-            vy *= Math.SQRT1_2;
-        }
-
-        this.player.setVelocity(vx, vy);
-    }
+  }
 }

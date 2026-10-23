@@ -8,12 +8,12 @@ export class MainMenuScene extends Phaser.Scene {
   create() {
 
     const { width, height } = this.scale;
-    this.add.image(0,0,"menuBackground").setOrigin(0,0);
+    this.add.image(0,0,"menuBackground").setOrigin(0,0).setDisplaySize(width, height);
 
-    this.add.sprite(250, 60, "game_title").setOrigin(0,0).setScale(6).play("game_title_anim");
+    this.add.sprite(width/2 - 240, 60, "game_title").setOrigin(0,0).setScale(8).play("game_title_anim");
 
     const startButton = this.add
-      .sprite(width/2, height/2, "start", 0).setOrigin(0.5).setScale(2) .setInteractive();
+      .sprite(width/2, height/2, "start", 0).setOrigin(0.5).setScale(4) .setInteractive();
 
     startButton.on("pointerover", () =>{
       

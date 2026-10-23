@@ -40,13 +40,21 @@ export class CharactersScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.image(0,0,"homeBackground").setOrigin(0,0);
-    const leftArrowMale = this.add.sprite(140, 440, "arrowLeft_idle").setInteractive().setScale(2).play("arrowLeft_anim");
-    const rightArrowMale = this.add.sprite(250, 440, "arrowRight_idle").setInteractive().setScale(2).play("arrowRight_anim");
-    const leftArrowFemale = this.add.sprite(640, 440, "arrowLeft_idle").setInteractive().setScale(2).play("arrowLeft_anim");
-    const rightArrowFemale = this.add.sprite(760, 440, "arrowRight_idle").setInteractive().setScale(2).play("arrowRight_anim");
+    this.add.image(0,0,"homeBackground").setOrigin(0,0).setDisplaySize(innerWidth, innerHeight);
+
+    const centerX = this.scale.width / 2;
+    const leftColumnX = centerX *0.5;  
+    const rightColumnX = centerX *1.5;
+
+    const uiY = this.scale.height * 0.45; // Позиція по вертикалі для імен та стрілок
+    const charY = this.scale.height * 0.75; // Позиція по вертикалі для персонажів
+
+    const leftArrowMale = this.add.sprite(leftColumnX - 80, uiY, "arrowLeft_idle").setInteractive().setScale(2).play("arrowLeft_anim");
+    const rightArrowMale = this.add.sprite(leftColumnX + 80, uiY, "arrowRight_idle").setInteractive().setScale(2).play("arrowRight_anim");
+    const leftArrowFemale = this.add.sprite(rightColumnX - 80, uiY, "arrowLeft_idle").setInteractive().setScale(2).play("arrowLeft_anim");
+    const rightArrowFemale = this.add.sprite(rightColumnX + 80, uiY, "arrowRight_idle").setInteractive().setScale(2).play("arrowRight_anim");
     
-    createInteractiveButton(this,350, 230, "confirm", () => {
+    createInteractiveButton(this,centerX * 0.9, this.scale.height * 0.85, "confirm", () => {
           const currentSelectedMale = maleCharacters[this.maleIndex];
         const currentSelectedFemale = femaleCharacters[this.femaleIndex];
         this.game.events.emit("cursor:default");
@@ -72,9 +80,9 @@ export class CharactersScene extends Phaser.Scene {
       this.changeFemale(1);
     })
 
-    this.malePreview = this.add.sprite(200, 300, maleCharacters[this.maleIndex].texture).play(maleCharacters[this.maleIndex].anim).setScale(8);
-    this.maleName = this.add.image(200, 430, maleCharacters[this.maleIndex].nameImg);
-    this.femalePreview = this.add.sprite(700, 300, femaleCharacters[this.femaleIndex].texture).play(femaleCharacters[this.femaleIndex].anim).setScale(8);
-    this.femaleName = this.add.image(700, 430, femaleCharacters[this.femaleIndex].nameImg);
+    this.malePreview = this.add.sprite(leftColumnX, charY, maleCharacters[this.maleIndex].texture).play(maleCharacters[this.maleIndex].anim).setScale(15);
+    this.maleName = this.add.image(leftColumnX, uiY, maleCharacters[this.maleIndex].nameImg);
+    this.femalePreview = this.add.sprite(rightColumnX, charY, femaleCharacters[this.femaleIndex].texture).play(femaleCharacters[this.femaleIndex].anim).setScale(15);
+    this.femaleName = this.add.image(rightColumnX, uiY, femaleCharacters[this.femaleIndex].nameImg);
   }
 }

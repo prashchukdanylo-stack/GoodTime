@@ -31,55 +31,72 @@ export interface GameBounds {
 }
 
 export class PraterScene extends Phaser.Scene {
-  private readonly rounds: readonly RoundConfig[] = [
-    {
-      targetScore: 1,
-      attempts: 4,
-      rowsY: [Phaser.Math.Between(180,320)],
-      minDuration: 1200,
-      maxDuration: 2000,
-      gameMode: "basic",
-    },
-    {
-      targetScore: 2,
-      attempts: 4,
-      rowsY: [280, 180],
-      minDuration: 1200,
-      maxDuration: 1800,
-      gameMode: "medium",
-    },
-    {
-      targetScore: 3,
-      attempts: 8,
-      rowsY: [280, 240, 180],
-      minDuration: 1200,
-      maxDuration: 2000,
-      gameMode: "basic",
-    },
-    {
-      targetScore: 4,
-      attempts: 9,
-      rowsY: [300, 260, 220, 180],
-      minDuration: 600,
-      maxDuration: 800,
-      gameMode: "medium",
-    },
-    {
-      targetScore: 4,
-      attempts: 8,
-      rowsY: [300, 260, 220, 180],
-      minDuration: 500,
-      maxDuration: 1000,
-      gameMode: "chaotic",
-    },
-  ];
+  private rounds !: RoundConfig[];
+  private getRounds(): RoundConfig[] {
+    const { height } = this.scale;
+    // Базові відступи адаптуємо під висоту екрана
+    const minY = height * 0.25;
+    const maxY = height * 0.5;
 
-  private readonly bounds: GameBounds = {
-    minX: 340,
-    maxX: 660,
-    minY: 160,
-    maxY: 320,
-  };
+    return [
+      {
+        targetScore: 1,
+        attempts: 4,
+        rowsY: [Phaser.Math.Between(minY, maxY)],
+        minDuration: 1200,
+        maxDuration: 2000,
+        gameMode: "basic",
+      },
+      {
+        targetScore: 2,
+        attempts: 4,
+        rowsY: [Phaser.Math.Between(minY, maxY), Phaser.Math.Between(minY, maxY)],
+        minDuration: 1200,
+        maxDuration: 1800,
+        gameMode: "medium",
+      },
+      {
+        targetScore: 3,
+        attempts: 8,
+        rowsY: [
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+        ],
+        minDuration: 1200,
+        maxDuration: 2000,
+        gameMode: "basic",
+      },
+      {
+        targetScore: 4,
+        attempts: 9,
+        rowsY: [
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+        ],
+        minDuration: 600,
+        maxDuration: 800,
+        gameMode: "medium",
+      },
+      {
+        targetScore: 4,
+        attempts: 8,
+        rowsY: [
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+          Phaser.Math.Between(minY, maxY),
+        ],
+        minDuration: 500,
+        maxDuration: 1000,
+        gameMode: "chaotic",
+      },
+    ];
+  } 
+
+  private bounds!: GameBounds;
 
   private currentData!: PlayersProps;
   private currentRoundIndex: number = 0;
@@ -102,10 +119,19 @@ export class PraterScene extends Phaser.Scene {
   }
 
   create(data: PlayersProps): void {
+    const {width, height} = this.scale;
     this.currentData = data;
     this.currentRoundIndex = 0;
     this.isGameOver = false;
-
+    this.bounds = {
+  
+      minX: width * 0.35,  // 35% від ширини екрана зліва
+      maxX: width * 0.75,  // 75% від ширини екрана справа
+      minY: height * 0.20, // 20% від висоти зверху
+      maxY: height * 0.55, // 55% від висоти знизу
+    
+    }
+    this.rounds = this.getRounds(); 
     this.setupEnvironment();
     this.setupCharacters();
     this.setupUI();
@@ -114,28 +140,41 @@ export class PraterScene extends Phaser.Scene {
     this.startRound(this.currentRoundIndex);
   }
 
-  // --- Ініціалізація сцени ---
-
   private setupEnvironment(): void {
-    this.add.image(0, 0, "attractionBackground").setOrigin(0, 0);
     this.add
-      .sprite(500, 250, "target_place_idle")
+      .image(0, 0, "attractionBackground")
+      .setOrigin(0, 0)
+      .setDisplaySize(this.scale.width, this.scale.height);
+    this.add
+      .sprite(
+        this.scale.width * 0.55,
+        this.scale.height * 0.4,
+        "target_place_idle",
+      )
       .play("target_place_anim")
-      .setScale(15);
+      .setScale(32);
   }
 
   private setupCharacters(): void {
     const { male, female } = this.currentData;
 
     this.maleSprite = this.add
-      .sprite(this.scale.width / 2, this.scale.height - 60, `${male.name}_baseball_idle`)
+      .sprite(
+        this.scale.width / 2,
+        this.scale.height - 60,
+        `${male.name}_baseball_idle`,
+      )
       .play(`${male.name}_baseball_anim`)
-      .setScale(9);
+      .setScale(18);
 
     this.femaleSprite = this.add
-      .sprite(200, 400, `${female.name}_baseball_idle`)
+      .sprite(
+        this.scale.width * 0.2,
+        this.scale.height * 0.6,
+        `${female.name}_baseball_idle`,
+      )
       .play(`${female.name}_baseball_anim`)
-      .setScale(9);
+      .setScale(18);
   }
 
   private setupUI(): void {
@@ -144,12 +183,33 @@ export class PraterScene extends Phaser.Scene {
       color: "#ffffff",
     };
 
-    this.scoreTablet = this.add.text(100, 20, "", textStyle);
-    this.attemptsTablet = this.add.text(100, 60, "", textStyle);
-    this.roundTablet = this.add.text(100, 100, "", textStyle);
-    this.add.image(30, 100, "round").setOrigin(0,0);
-    this.add.image(30, 60, "attempts").setOrigin(0,0);
-    this.add.image(50, 20, "hit").setOrigin(0,0);
+    this.scoreTablet = this.add.text(
+      this.scale.width * 0.06,
+      this.scale.height * 0.05,
+      "",
+      textStyle,
+    );
+    this.attemptsTablet = this.add.text(
+      this.scale.width * 0.06,
+      this.scale.height * 0.1,
+      "",
+      textStyle,
+    );
+    this.roundTablet = this.add.text(
+      this.scale.width * 0.06,
+      this.scale.height * 0.15,
+      "",
+      textStyle,
+    );
+    this.add
+      .image(this.scale.width * 0.02, this.scale.height * 0.05, "round")
+      .setOrigin(0, 0);
+    this.add
+      .image(this.scale.width * 0.02, this.scale.height * 0.1, "attempts")
+      .setOrigin(0, 0);
+    this.add
+      .image(this.scale.width * 0.03, this.scale.height * 0.15, "hit")
+      .setOrigin(0, 0);
   }
 
   private setupInputs(): void {
@@ -161,8 +221,6 @@ export class PraterScene extends Phaser.Scene {
       this.clearTargets();
     });
   }
-
-  // --- Логіка раундів ---
 
   private startRound(roundIndex: number): void {
     const config = this.rounds[roundIndex];
@@ -179,7 +237,7 @@ export class PraterScene extends Phaser.Scene {
   }
 
   private spawnTarget(y: number, config: RoundConfig): void {
-    const target = this.add.image(this.bounds.minX, y, "target");
+    const target = this.add.image(this.bounds.minX, y, "target").setScale(1.5);
     this.targets.push(target);
 
     const halfW = target.displayWidth * 0.5;
@@ -192,14 +250,32 @@ export class PraterScene extends Phaser.Scene {
 
     target.setX(safeMinX);
 
-    const duration = Phaser.Math.Between(config.minDuration, config.maxDuration);
+    const duration = Phaser.Math.Between(
+      config.minDuration,
+      config.maxDuration,
+    );
 
     switch (config.gameMode) {
       case "chaotic":
-        this.setupChaoticMovement(target, y, safeMinX, safeMaxX, safeMinY, safeMaxY, duration);
+        this.setupChaoticMovement(
+          target,
+          y,
+          safeMinX,
+          safeMaxX,
+          safeMinY,
+          safeMaxY,
+          duration,
+        );
         break;
       case "medium":
-        this.setupMediumMovement(target, y, safeMaxX, safeMinY, safeMaxY, duration);
+        this.setupMediumMovement(
+          target,
+          y,
+          safeMaxX,
+          safeMinY,
+          safeMaxY,
+          duration,
+        );
         break;
       case "basic":
       default:
@@ -222,7 +298,7 @@ export class PraterScene extends Phaser.Scene {
     maxX: number,
     minY: number,
     maxY: number,
-    duration: number
+    duration: number,
   ): void {
     const midX = (minX + maxX) / 2;
     const deltaY = 35;
@@ -262,7 +338,7 @@ export class PraterScene extends Phaser.Scene {
     safeMaxX: number,
     safeMinY: number,
     safeMaxY: number,
-    duration: number
+    duration: number,
   ): void {
     const sign = Math.random() < 0.5 ? -1 : 1;
     const offset = Phaser.Math.Between(30, 50) * sign;
@@ -289,14 +365,14 @@ export class PraterScene extends Phaser.Scene {
 
   private destroyTargetTween(target: Phaser.GameObjects.Image): void {
     this.tweens.killTweensOf(target);
-    const pathTween = target.getData("pathTween") as Phaser.Tweens.Tween | undefined;
+    const pathTween = target.getData("pathTween") as
+      | Phaser.Tweens.Tween
+      | undefined;
     if (pathTween) {
       pathTween.stop();
       pathTween.remove();
     }
   }
-
-  // --- Ігровий процес (Кидок м'яча) ---
 
   private handlePointerDown = (pointer: Phaser.Input.Pointer): void => {
     if (!this.canThrow || this.isGameOver || this.attempts <= 0) return;
@@ -316,7 +392,9 @@ export class PraterScene extends Phaser.Scene {
       .play("baseball_anim")
       .setScale(2);
 
-    this.maleSprite.stop().setTexture(`${this.currentData.male.name}_baseball_throw_idle`);
+    this.maleSprite
+      .stop()
+      .setTexture(`${this.currentData.male.name}_baseball_throw_idle`);
 
     this.tweens.add({
       targets: ball,
@@ -345,7 +423,9 @@ export class PraterScene extends Phaser.Scene {
       const target = this.targets[i];
       if (!target.active) continue;
 
-      if (Phaser.Geom.Intersects.CircleToRectangle(ballCircle, target.getBounds())) {
+      if (
+        Phaser.Geom.Intersects.CircleToRectangle(ballCircle, target.getBounds())
+      ) {
         this.hitTarget(target, i);
         hit = true;
         break;
@@ -379,8 +459,6 @@ export class PraterScene extends Phaser.Scene {
     });
   }
 
-  // --- Перевірка стану та переходи ---
-
   private checkEndConditions(): void {
     if (this.score >= this.targetScore) {
       if (this.currentRoundIndex + 1 < this.rounds.length) {
@@ -404,38 +482,43 @@ export class PraterScene extends Phaser.Scene {
     this.currentRoundIndex++;
 
     showNextRoundBanner({
-    scene: this,
-    nextIndex: this.currentRoundIndex,
-    onStart: (index) => {
-      this.startRound(index);
-    },
-  });
+      scene: this,
+      nextIndex: this.currentRoundIndex,
+      onStart: (index) => {
+        this.startRound(index);
+      },
+    });
   }
 
   private finishGame(message: "victory" | "game_over"): void {
     this.isGameOver = true;
     this.canThrow = false;
 
-    this.add.image(this.scale.width / 2 + 30, 80, message).setScale(5);
+    this.add.image(this.scale.width / 2 + 30, this.scale.height * 0.2, message).setScale(5);
 
     if (message === "victory") {
       this.registry.set("attraction_idle_completed", true);
-      this.femaleSprite.play(`${this.currentData.female.name}_baseball_victory_anim`);
-      this.maleSprite.play(`${this.currentData.male.name}_baseball_victory_anim`);
+      this.femaleSprite.play(
+        `${this.currentData.female.name}_baseball_victory_anim`,
+      );
+      this.maleSprite.play(
+        `${this.currentData.male.name}_baseball_victory_anim`,
+      );
     }
 
-    createInteractiveButton(this, 400, 150, "restart", () => {
+    createInteractiveButton(this, this.scale.width * 0.45, this.scale.height*0.3, "restart", () => {
       this.scene.restart(this.currentData);
     });
 
-    createInteractiveButton(this,400, 300, "go_to_map", () => {
+    createInteractiveButton(this, this.scale.width * 0.45, this.scale.height*0.5, "go_to_map", () => {
       this.scene.start("WorldScene");
-   });
+    });
   }
 
-
   private updateHUD(): void {
-    this.roundTablet.setText(`${this.currentRoundIndex + 1}/${this.rounds.length}`);
+    this.roundTablet.setText(
+      `${this.currentRoundIndex + 1}/${this.rounds.length}`,
+    );
     this.scoreTablet.setText(`${this.score}/${this.targetScore}`);
     this.attemptsTablet.setText(`${this.attempts}`);
   }

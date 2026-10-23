@@ -3,6 +3,7 @@ import viennaBackground from "./assets/viennaBackground.png";
 import homeBackround from "./assets/homeBackground.png";
 import menuBackground from "./assets/menuBackground.png";
 import attracionBackground from "./assets/attractionBackground.png";
+import albertinaBackground from "./assets/albertinaBackground.png";
 import cursor from "./assets/cursor.png";
 import confirm from "./assets/confirm.png";
 import game_title from "./assets/game_title.png";
@@ -18,6 +19,11 @@ import hit from "./assets/hit.png";
 import restart from "./assets/restart.png";
 import go_to_map from "./assets/go_to_map.png";
 import bush from "./assets/bush.png";
+import albertinaPiece1 from "./assets/albertina_piece1.png";
+import albertinaPiece2 from "./assets/albertina_piece2.png";
+import albertinaPiece3 from "./assets/albertina_piece3.png";
+import albertinaPiece4 from "./assets/albertina_piece4.png";
+import albertinaFinishedArt from "./assets/albertina_finished_art.png";
 
 const assetFiles = import.meta.glob("./assets/*_idle.png", { 
   eager: true, 
@@ -44,6 +50,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("homeBackground",homeBackround);
     this.load.image("menuBackground", menuBackground);
     this.load.image("attractionBackground", attracionBackground);
+    this.load.image("albertinaBackground", albertinaBackground);
     this.load.image("cursor", cursor);
     this.load.image("target", target);
     this.load.image("game_over", gameOver);
@@ -54,6 +61,11 @@ export class PreloadScene extends Phaser.Scene {
     this.load.image("attempts", attempts);
     this.load.image("hit", hit);
     this.load.image("bush", bush);
+    this.load.image("albertina_piece1", albertinaPiece1);
+    this.load.image("albertina_piece2", albertinaPiece2);
+    this.load.image("albertina_piece3", albertinaPiece3);
+    this.load.image("albertina_piece4", albertinaPiece4);
+    this.load.image("albertina_finished_art", albertinaFinishedArt);
     this.load.spritesheet("go_to_map", go_to_map, {frameWidth:32, frameHeight: 32});
     this.load.spritesheet("restart", restart, {frameWidth:64, frameHeight: 32});
     this.load.spritesheet("confirm", confirm, {frameWidth:64, frameHeight: 32});
@@ -72,12 +84,12 @@ export class PreloadScene extends Phaser.Scene {
       
       
       const anim = texture.replace("idle", "anim");
-      const totalFrames = this.textures.get(texture).frameTotal - 2;
+      const totalFrames = this.textures.get(texture).frameTotal - 1;
 
       if (totalFrames > 1) {
         this.anims.create({
         key: anim,
-        frames: this.anims.generateFrameNumbers(texture, {start: 0, end: Math.max(0,totalFrames)}),
+        frames: this.anims.generateFrameNumbers(texture, {start: 0, end: totalFrames - 1}),
         frameRate: 5,
         repeat: -1,
       })
@@ -92,15 +104,28 @@ export class PreloadScene extends Phaser.Scene {
       repeat: -1,
     })
     this.anims.create({
-  key: "spikes_pop_up",
-  frames: this.anims.generateFrameNumbers("spike_idle", { start: 0, end: 3 }),
+  key: "roses_sides_pop_up",
+  frames: this.anims.generateFrameNumbers("roses_sides_idle", { start: 0, end: 3 }),
   frameRate: 12,
   repeat: 0,
 });
 
 this.anims.create({
-  key: "spikes_retract",
-  frames: this.anims.generateFrameNumbers("spike_idle", { start: 3, end: 0 }),
+  key: "roses_sides_retract",
+  frames: this.anims.generateFrameNumbers("roses_sides_idle", { start: 3, end: 0 }),
+  frameRate: 12,
+  repeat: 0,
+});
+ this.anims.create({
+  key: "roses_down_pop_up",
+  frames: this.anims.generateFrameNumbers("roses_down_idle", { start: 0, end: 3 }),
+  frameRate: 12,
+  repeat: 0,
+});
+
+this.anims.create({
+  key: "roses_down_retract",
+  frames: this.anims.generateFrameNumbers("roses_down_idle", { start: 3, end: 0 }),
   frameRate: 12,
   repeat: 0,
 });

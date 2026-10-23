@@ -7,9 +7,10 @@ import { PreloadScene } from "./PreloadScene";
 import { CursorScene } from "./CursorScene";
 import { PraterScene } from "./minigames/PraterScene";
 import { ShconbrunScene } from "./minigames/SchonbrunScene";
+import { AlbertinaScene } from "./minigames/AlbertinaScene";
 new Phaser.Game({
-  width: 900,
-  height: 600,
+  width: window.innerWidth,
+  height: window.innerHeight,
   pixelArt: true,
   physics: {
     default:'arcade',
@@ -23,8 +24,8 @@ new Phaser.Game({
   version: import.meta.env.VERSION || "0.0.1",
   backgroundColor: '#708f9d',
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [PreloadScene,MainMenuScene, CharactersScene, WorldScene, LocationScene,CursorScene, PraterScene, ShconbrunScene],
+  scene: [PreloadScene,MainMenuScene, CharactersScene, WorldScene, LocationScene,CursorScene, PraterScene, ShconbrunScene, AlbertinaScene],
 });
