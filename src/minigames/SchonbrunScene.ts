@@ -3,6 +3,26 @@ import type { PlayersProps } from "./PraterScene";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
 
+import bushImg from "../assets/bush.png";
+import snakeIdle from "../assets/snake_idle.png";
+import rosesSides from "../assets/roses_sides_idle.png";
+import rosesDown from "../assets/roses_down_idle.png";
+
+import lauraWalkRight from "../assets/Laura_walk_right_idle.png";
+import lauraWalkDown from "../assets/Laura_walk_down_idle.png";
+import lauraWalkUp from "../assets/Laura_walk_up_idle.png";
+import lauraIdle from "../assets/Laura_idle.png";
+
+import lilyWalkRight from "../assets/Lily_walk_right_idle.png";
+import lilyWalkDown from "../assets/Lily_walk_down_idle.png";
+import lilyWalkUp from "../assets/Lily_walk_up_idle.png";
+import lilyIdle from "../assets/Lily_idle.png";
+
+import stellaWalkRight from "../assets/Stella_walk_right_idle.png";
+import stellaWalkDown from "../assets/Stella_walk_down_idle.png";
+import stellaWalkUp from "../assets/Stella_walk_up_idle.png";
+import stellaIdle from "../assets/Stella_idle.png";
+
 export class ShconbrunScene extends Phaser.Scene {
   private roundIndex: number = 0;
   private currentData!: PlayersProps;
@@ -27,6 +47,7 @@ export class ShconbrunScene extends Phaser.Scene {
   private readonly enemySpeed: number = 50;
   private activeDelayedCalls: Phaser.Time.TimerEvent[] = [];
   private enemyTimers: Phaser.Time.TimerEvent[] = [];
+
   private readonly mazeGrid1: number[][] = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 2, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 5, 1],
@@ -104,15 +125,85 @@ export class ShconbrunScene extends Phaser.Scene {
     [1, 0, 0, 0, 1, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ];
+
   private mazeRounds = [
     this.mazeGrid1,
     this.mazeGrid2,
     this.mazeGrid3,
     this.mazeGrid4,
   ];
+
   constructor() {
     super({ key: "SchonbrunScene" });
   }
+
+  preload() {
+    this.load.image("bush", bushImg);
+    this.load.spritesheet("snake_idle", snakeIdle, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("roses_sides_idle", rosesSides, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("roses_down_idle", rosesDown, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet("Laura_walk_right", lauraWalkRight, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Laura_walk_down", lauraWalkDown, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Laura_walk_up", lauraWalkUp, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Laura_idle", lauraIdle, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet("Lily_walk_right", lilyWalkRight, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Lily_walk_down", lilyWalkDown, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Lily_walk_up", lilyWalkUp, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Lily_idle", lilyIdle, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet("Stella_walk_right", stellaWalkRight, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Stella_walk_down", stellaWalkDown, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Stella_walk_up", stellaWalkUp, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("Stella_idle", stellaIdle, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+  }
+
   create(data: PlayersProps) {
     this.isEnd = false;
     this.currentData = data;
@@ -128,7 +219,118 @@ export class ShconbrunScene extends Phaser.Scene {
       }) as any;
     }
 
+    if (!this.anims.exists("snake_anim")) {
+      this.anims.create({
+        key: "snake_anim",
+        frames: this.anims.generateFrameNumbers("snake_idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 6,
+        repeat: -1,
+      });
+    }
+
+    const characters = ["Laura", "Lily", "Stella"];
+    characters.forEach((name) => {
+      if (!this.anims.exists(`${name}_walk_right_anim`)) {
+        this.anims.create({
+          key: `${name}_walk_right_anim`,
+          frames: this.anims.generateFrameNumbers(`${name}_walk_right`, {
+            start: 0,
+            end: 3,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        });
+      }
+
+      if (!this.anims.exists(`${name}_walk_down_anim`)) {
+        this.anims.create({
+          key: `${name}_walk_down_anim`,
+          frames: this.anims.generateFrameNumbers(`${name}_walk_down`, {
+            start: 0,
+            end: 3,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        });
+      }
+      if (!this.anims.exists(`${name}_walk_up_anim`)) {
+        this.anims.create({
+          key: `${name}_walk_up_anim`,
+          frames: this.anims.generateFrameNumbers(`${name}_walk_up`, {
+            start: 0,
+            end: 3,
+          }),
+          frameRate: 8,
+          repeat: -1,
+        });
+      }
+    });
+
+    if (!this.anims.exists("roses_sides_anim")) {
+      this.anims.create({
+        key: "roses_sides_anim",
+        frames: this.anims.generateFrameNumbers("roses_sides_idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 3,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: "roses_sides_pop_up",
+        frames: this.anims.generateFrameNumbers("roses_sides_idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 10,
+        repeat: 0,
+      });
+      this.anims.create({
+        key: "roses_sides_retract",
+        frames: this.anims.generateFrameNumbers("roses_sides_idle", {
+          start: 3,
+          end: 0,
+        }),
+        frameRate: 10,
+        repeat: 0,
+      });
+    }
+
+    if (!this.anims.exists("roses_down_anim")) {
+      this.anims.create({
+        key: "roses_down_anim",
+        frames: this.anims.generateFrameNumbers("roses_down_idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 3,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: "roses_down_pop_up",
+        frames: this.anims.generateFrameNumbers("roses_down_idle", {
+          start: 0,
+          end: 3,
+        }),
+        frameRate: 10,
+        repeat: 0,
+      });
+      this.anims.create({
+        key: "roses_down_retract",
+        frames: this.anims.generateFrameNumbers("roses_down_idle", {
+          start: 3,
+          end: 0,
+        }),
+        frameRate: 10,
+        repeat: 0,
+      });
+    }
+
     this.startRound(this.roundIndex);
+
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.game.events.emit("cursor:default");
       this.clearCurrentMaze();
@@ -246,17 +448,23 @@ export class ShconbrunScene extends Phaser.Scene {
             currentMap[rowIndex][colIndex - 1] === 1 &&
             currentMap[rowIndex][colIndex + 1] === 1
           )
-            spike = this.add.sprite(x, y, "roses_sides_idle");
-          else spike = this.add.sprite(x, y, "roses_down_idle");
+            spike = this.add
+              .sprite(x, y, "roses_sides_idle")
+              .play("roses_sides_anim");
+          else
+            spike = this.add
+              .sprite(x, y, "roses_down_idle")
+              .play("roses_down_anim");
           this.physics.add.existing(spike, true);
           spike.setData("isDangerous", false);
           this.spikes.push(spike);
         } else if (cell === 5) {
           const enemy = this.physics.add
             .sprite(x, y, "snake_idle")
-            .play("snake_anim").setScale(0.8, 0.8);
+            .play("snake_anim")
+            .setScale(0.8, 0.8);
 
-          enemy.body.setSize(20,18);
+          enemy.body.setSize(20, 18);
           const directions = [
             { x: -1, y: -1 },
             { x: 0, y: -1 },
@@ -292,6 +500,7 @@ export class ShconbrunScene extends Phaser.Scene {
     this.player = this.physics.add
       .sprite(startX, startY, this.currentData.female.texture)
       .play(this.currentData.female.anim);
+
     if (this.player.body) {
       const hitBoxWidth = 10;
       const hitBoxHeight = 8;
@@ -310,7 +519,6 @@ export class ShconbrunScene extends Phaser.Scene {
       callback: () => {
         this.spikes.forEach((spike) => {
           const texture = spike.texture.key.replace("_idle", "");
-          console.log(texture);
           spike.play(`${texture}_pop_up`);
 
           const dangerousTimer = this.time.delayedCall(150, () => {
@@ -326,12 +534,14 @@ export class ShconbrunScene extends Phaser.Scene {
         });
       },
     });
+
     this.physics.add.overlap(this.player, this.spikes, (_, spikeObj) => {
       const spike = spikeObj as Phaser.GameObjects.Sprite;
       if (spike.getData("isDangerous")) {
         this.handleSpikeHit();
       }
     });
+
     this.physics.add.collider(this.enemies, this.walls);
     this.physics.add.collider(this.player, this.walls);
     this.physics.add.overlap(this.player, this.enemies, () =>
@@ -366,7 +576,7 @@ export class ShconbrunScene extends Phaser.Scene {
     });
 
     createInteractiveButton(this, 400, 300, "go_to_map", () => {
-      this.scene.start("WorldScene");
+      this.scene.start("WorldScene", this.currentData);
     });
   }
 
@@ -389,18 +599,21 @@ export class ShconbrunScene extends Phaser.Scene {
       this.handleVictory();
     }
   }
+
   handleVictory() {
     if (this.isEnd) return;
     this.isEnd = true;
     this.player.setVelocity(0, 0);
     this.add.image(this.scale.width / 2 + 30, 80, "victory").setScale(5);
+
     createInteractiveButton(this, 400, 150, "restart", () => {
       this.scene.restart(this.currentData);
     });
 
     createInteractiveButton(this, 400, 300, "go_to_map", () => {
-      this.scene.start("WorldScene");
+      this.scene.start("WorldScene", this.currentData);
     });
+
     this.registry.set("schonbrun_idle_completed", true);
   }
 

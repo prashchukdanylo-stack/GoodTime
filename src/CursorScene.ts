@@ -1,13 +1,23 @@
 import Phaser from "phaser";
-
+import cursorPointer from "./assets/cursor_pointer_idle.png";
 export class CursorScene extends Phaser.Scene {
     private cursorSprite!: Phaser.GameObjects.Sprite;
     constructor() {
         super({key: "CursorScene"})
     }
+
+    preload() {
+      this.load.spritesheet("cursor_pointer_idle", cursorPointer, {frameWidth:32, frameHeight:32});
+    }
+
     create() {
 
-
+      this.anims.create({
+        key: "cursor_pointer_anim",
+        frames: this.anims.generateFrameNumbers("cursor_pointer_idle", {start:0, end:3}),
+        frameRate: 5,
+        repeat: -1,
+      })
         this.input.setDefaultCursor("none");
 
     const initialX = this.input.activePointer.x || 0;

@@ -1,18 +1,29 @@
 import Phaser from "phaser";
 
+import viennaBackground from "./assets/viennaBackground.png";
+import menuIcon from "./assets/menu_icon.png";
+import coin from "./assets/coin.png";
+
+import attractionIdle from "./assets/attraction_idle.png";
+import albertinaIdle from "./assets/albertina_idle.png";
+import stephanIdle from "./assets/stephan_idle.png";
+import schonbrunIdle from "./assets/schonbrun_idle.png";
+import belvedereIdle from "./assets/belvedere_idle.png";
+
 interface PlayerProps {
   name: string;
   texture: string;
   anim: string;
 }
-interface PlayersProps {
+
+export interface PlayersProps {
   male: PlayerProps;
   female: PlayerProps;
 }
 
 interface LocationConfig {
   name: string;
-  key: string;
+  targetScene: string;
   x: number;
   y: number;
   scale?: number;
@@ -20,27 +31,33 @@ interface LocationConfig {
 
 class GameLocation {
   private isCompleted: boolean;
-  private data: object;
+  private targetSceneKey: string;
+  private playerData: PlayersProps;
   private scene: Phaser.Scene;
   public sprite: Phaser.GameObjects.Sprite;
   private target: Phaser.GameObjects.Container;
   private speed: number;
   private starIcon?: Phaser.GameObjects.Image;
+
   constructor(
     scene: Phaser.Scene,
     sprite: Phaser.GameObjects.Sprite,
-    data: object,
+    targetSceneKey: string,
+    playerData: PlayersProps,
     target: Phaser.GameObjects.Container,
     speed: number = 200,
   ) {
     this.scene = scene;
     this.sprite = sprite;
     this.speed = speed;
-    this.data = data;
+    this.targetSceneKey = targetSceneKey;
+    this.playerData = playerData;
     this.target = target;
+
     this.isCompleted = this.scene.registry.get(
-      `${this.sprite.texture.key}_completed`,
+      `${this.targetSceneKey}_completed`,
     );
+
     this.sprite.setInteractive();
     this.sprite.on("pointerdown", this.moveToLocation, this);
     this.sprite.on("pointerover", () =>
@@ -72,7 +89,8 @@ class GameLocation {
       duration: duration,
       ease: "Linear",
       onComplete: () => {
-        this.scene.scene.start("LocationScene", this.data);
+        
+        this.scene.scene.start(this.targetSceneKey, this.playerData);
       },
     });
   }
@@ -91,13 +109,42 @@ export class WorldScene extends Phaser.Scene {
     super({ key: "WorldScene" });
   }
 
+  preload() {
+    
+    this.load.image("viennaBackground", viennaBackground);
+    this.load.image("menu_icon", menuIcon);
+    this.load.image("coin", coin);
+
+  
+    this.load.spritesheet("attraction_idle", attractionIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("albertina_idle", albertinaIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("stephan_idle", stephanIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("schonbrun_idle", schonbrunIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("belvedere_idle", belvedereIdle, { frameWidth: 32, frameHeight: 32 });
+  }
+
   create(data: PlayersProps) {
     const { width, height } = this.scale;
+
+    const locationsToAnims = ["attraction", "albertina", "stephan", "schonbrun", "belvedere"];
+    locationsToAnims.forEach((name) => {
+      const animKey = `${name}_anim`;
+      if (!this.anims.exists(animKey)) {
+        this.anims.create({
+          key: animKey,
+          frames: this.anims.generateFrameNumbers(`${name}_idle`, { start: 0, end: 3 }),
+          frameRate: 5,
+          repeat: -1,
+        });
+      }
+    });
 
     this.add
       .image(0, 0, "viennaBackground")
       .setOrigin(0, 0)
       .setDisplaySize(width, height);
+
+
     const menuButton = this.add
       .image(width * 0.04, height * 0.06, "menu_icon")
       .setScale(2)
@@ -110,12 +157,16 @@ export class WorldScene extends Phaser.Scene {
     menuButton.on("pointerover", () => this.game.events.emit("cursor:hover"));
     menuButton.on("pointerout", () => this.game.events.emit("cursor:default"));
 
+    
+    const playerMale = data?.male || { texture: "Greg_idle", anim: "Greg_anim" };
+    const playerFemale = data?.female || { texture: "Laura_idle", anim: "Laura_anim" };
+
     const player1Sprite = this.add
-      .sprite(0, 0, data.male.texture)
-      .play(data.male.anim);
+      .sprite(0, 0, playerMale.texture)
+      .play(playerMale.anim);
     const player2Sprite = this.add
-      .sprite(15, 0, data.female.texture)
-      .play(data.female.anim);
+      .sprite(15, 0, playerFemale.texture)
+      .play(playerFemale.anim);
 
     this.player = this.add.container(width / 2, height / 2 + 20, [
       player1Sprite,
@@ -124,19 +175,22 @@ export class WorldScene extends Phaser.Scene {
 
     this.player.setScale(4);
 
+    
     const locationsConfig: LocationConfig[] = [
-      { name: "attraction", key: "PraterScene", x: width * 0.82, y: height* 0.35,},
-      { name: "albertina", key: "AlbertinaScene", x: width * 0.20, y: height * 0.7,},
-      { name: "stephan", key: "stephan", x: width * 0.57, y: height * 0.8 },
-      { name: "schonbrun", key: "SchonbrunScene", x: width * 0.12, y: height*0.4 },
-      { name: "belvedere", key: "belvedere", x: width * 0.85, y: height * 0.7 },
+      { name: "attraction", targetScene: "PraterScene", x: width * 0.82, y: height * 0.35 },
+      { name: "albertina", targetScene: "AlbertinaScene", x: width * 0.20, y: height * 0.7 },
+      { name: "stephan", targetScene: "StephanScene", x: width * 0.57, y: height * 0.8 },
+      { name: "schonbrun", targetScene: "SchonbrunScene", x: width * 0.12, y: height * 0.4 },
+      { name: "belvedere", targetScene: "BelvedereScene", x: width * 0.85, y: height * 0.7 },
     ];
-    locationsConfig.forEach(({ name, key, x, y, scale = 9 }) => {
+
+    locationsConfig.forEach(({ name, targetScene, x, y, scale = 9 }) => {
       const sprite = this.add
         .sprite(x, y, `${name}_idle`)
         .play(`${name}_anim`)
         .setScale(scale);
-      new GameLocation(this, sprite, { key, data }, this.player);
+      
+      new GameLocation(this, sprite, targetScene, data, this.player);
     });
   }
 }

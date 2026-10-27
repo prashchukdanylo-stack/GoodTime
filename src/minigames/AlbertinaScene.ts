@@ -1,43 +1,137 @@
 import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
+import { showNextRoundBanner } from "../ui/nextRound";
+
+
+import albertinaBackground from "../assets/albertinaBackground.png";
+
+
+const pieceModules = [
+  import.meta.glob("../assets/pieces1/*.jpg", { eager: true, query: "?url", import: "default" }),
+  import.meta.glob("../assets/pieces2/*.jpg", { eager: true, query: "?url", import: "default" }),
+  import.meta.glob("../assets/pieces3/*.jpg", { eager: true, query: "?url", import: "default" })
+];
 
 export class AlbertinaScene extends Phaser.Scene {
   private currentData!: PlayersProps;
-  private readonly totalPieces = 4;
-  private pieces: Phaser.GameObjects.Sprite[] = [];
+  private totalPieces = 25;
+  private gridCols = 5; 
+  private gridRows = 5; 
+  private readonly totalRounds = 3;
+  private currentRound = 0;
+  private pieces: Phaser.GameObjects.Image[] = [];
   private placedCounts = 0;
-  private obstacles: Phaser.Physics.Arcade.Sprite[] = [];
   private isGameOver = false;
+ 
+  private readonly canvasMinX = 708;
+  private readonly canvasMinY = 224;
+  private readonly canvasWidth = 442;
+  private readonly canvasHeight = 296;
+
   constructor() {
     super({ key: "AlbertinaScene" });
   }
+
+  preload() {
+    
+    this.load.image("albertinaBackground", albertinaBackground);
+
+
+    pieceModules.forEach((modules, roundIndex) => {
+      Object.entries(modules).forEach(([filePath, url]) => {
+        const fileName = filePath.split("/").pop()?.replace(/\.[^/.]+$/, "") || "";
+        this.load.image(`${roundIndex}_${fileName}`, url);
+      });
+    });
+  }
+
   create(data: PlayersProps) {
     this.currentData = data;
     this.isGameOver = false;
     this.placedCounts = 0;
     this.pieces = [];
-    this.obstacles = [];
 
     const { width, height } = this.scale;
 
-    const startX = width * 0.45;
-    const startY = height * 0.4;
-    const pieceSize = 100;
+   
     this.add
       .image(0, 0, "albertinaBackground")
       .setOrigin(0, 0)
       .setDisplaySize(width, height);
 
+    
+    this.startRound(this.currentRound);
+
+   
+    this.input.on(
+      "drag",
+      (
+        pointer: Phaser.Input.Pointer,
+        gameObject: Phaser.GameObjects.GameObject,
+        dragX: number,
+        dragY: number,
+      ) => {
+        if (this.isGameOver) return;
+        
+        if (gameObject.data && !gameObject.getData("isPlaced")) {
+          (gameObject as Phaser.GameObjects.Image).setPosition(dragX, dragY);
+        }
+      },
+    );
+
+    
+    this.input.on("dragend", (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject) => {
+      if (this.isGameOver) return;
+      if (!gameObject.data) return;
+
+      const imgObject = gameObject as Phaser.GameObjects.Image;
+      const correctX = imgObject.getData("correctX");
+      const correctY = imgObject.getData("correctY");
+
+      if (Phaser.Math.Distance.Between(imgObject.x, imgObject.y, correctX, correctY) < 30) {
+        imgObject.setPosition(correctX, correctY);
+        imgObject.disableInteractive();
+        imgObject.setData("isPlaced", true);
+        this.placedCounts++;
+
+        if (this.placedCounts >= this.totalPieces) {
+          this.clearArt();
+
+          if (this.currentRound + 1 < this.totalRounds) {
+            this.currentRound++;
+            this.goToNextRound();
+          } else {
+            this.handleVictory();
+          }
+        }
+      }
+    });
+  }
+
+  private startRound(roundIndex: number): void {
+    this.placedCounts = 0;
+    const gridCols = this.gridCols + roundIndex;
+    const gridRows = this.gridRows + roundIndex;
+    const pieceWidth = this.canvasWidth / gridCols;   
+    const pieceHeight = this.canvasHeight / gridRows;
+    this.totalPieces = gridCols * gridRows;
+
     for (let i = 0; i < this.totalPieces; i++) {
-      const correctX = startX + (i % 2) * pieceSize;
-      const correctY = startY + Math.floor(i / 2) * pieceSize;
+      const col = i % gridCols;
+      const row = Math.floor(i / gridCols);
 
-      const spawnX = Phaser.Math.Between(width * 0.3, width * 0.7);
-      const spawnY = height * 0.8;
+      const correctX = this.canvasMinX + col * pieceWidth + pieceWidth / 2;
+      const correctY = this.canvasMinY + row * pieceHeight + pieceHeight / 2;
 
-      const piece = this.add.sprite(spawnX, spawnY, `albertina_piece${i + 1}`);
-      piece.setDisplaySize(pieceSize, pieceSize);
+      const spawnX = Phaser.Math.Between(this.scale.width * 0.25, this.scale.width * 0.75);
+      const spawnY = this.scale.height * 0.85;
+
+
+      const textureKey = `${roundIndex}_${i}`; 
+
+      const piece = this.add.image(spawnX, spawnY, textureKey);
+      piece.setDisplaySize(pieceWidth, pieceHeight);
       piece.setInteractive({ draggable: true });
 
       piece.setData("correctX", correctX);
@@ -46,34 +140,33 @@ export class AlbertinaScene extends Phaser.Scene {
 
       this.pieces.push(piece);
     }
+  }
 
-    this.input.on(
-      "drag",
-      (
-        pointer: Phaser.Input.Pointer,
-        gameObject: Phaser.GameObjects.Sprite,
-        dragX: number,
-        dragY: number,
-      ) => {
-        if (this.isGameOver) return;
-        if (!gameObject.getData("isPlaced")) {
-            gameObject.setPosition(dragX, dragY);
-        }
-      },
-    );
+  private goToNextRound() {
+    showNextRoundBanner({
+      scene: this, 
+      nextIndex: this.currentRound, 
+      onStart: (index) => {
+        this.startRound(index);
+      }
+    });
+  }
 
-    this.input.on("dragend", (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.Sprite) => {
-        if (this.isGameOver) return;
+  private clearArt() {
+    this.pieces.forEach((piece) => {
+      piece.destroy();
+    });
+    this.pieces = [];
+  }
 
-        const correctX = gameObject.getData("correctX");
-        const correctY = gameObject.getData("correctY");
-
-        if (Phaser.Math.Distance.Between(gameObject.x, gameObject.y, correctX, correctY) < 30) {
-            gameObject.setPosition(correctX, correctY);
-            gameObject.disableInteractive();
-            gameObject.setData("isPlaced", true);
-            this.placedCounts++;
-        }
-    })
+  private handleVictory(): void {
+    this.isGameOver = true;
+    this.add.image(this.scale.width / 2, this.scale.height / 2, "victory").setScale(3);
+    
+    createInteractiveButton(this, this.scale.width * 0.1, this.scale.height * 0.1, "go_to_map", () => {
+      this.scene.start("WorldScene", this.currentData);
+    });
+    
+    this.registry.set("AlbertinaScene_completed", true);
   }
 }

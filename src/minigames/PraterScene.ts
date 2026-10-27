@@ -1,6 +1,40 @@
 import Phaser from "phaser";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
+
+// Імпортуємо асети для атракціону (Prater)
+import attractionBackground from "../assets/attractionBackground.png";
+import targetPlace from "../assets/target_place_idle.png";
+import targetImg from "../assets/target.png";
+import baseball from "../assets/baseball_idle.png";
+
+// UI іконки HUD
+import roundIcon from "../assets/round.png";
+import attemptsIcon from "../assets/attempts.png";
+import hitIcon from "../assets/hit.png";
+
+// Персонажі (Baseball версії для хлопців та дівчат)
+import gregBaseballIdle from "../assets/Greg_baseball_idle.png";
+import gregBaseballThrow from "../assets/Greg_baseball_throw_idle.png";
+import gregBaseballVictory from "../assets/Greg_baseball_victory_idle.png";
+
+import damonBaseballIdle from "../assets/Damon_baseball_idle.png";
+import damonBaseballThrow from "../assets/Damon_baseball_throw_idle.png";
+import damonBaseballVictory from "../assets/Damon_baseball_victory_idle.png";
+
+import tomBaseballIdle from "../assets/Tom_baseball_idle.png";
+import tomBaseballThrow from "../assets/Tom_baseball_throw_idle.png";
+import tomBaseballVictory from "../assets/Tom_baseball_victory_idle.png";
+
+import lauraBaseballIdle from "../assets/Laura_baseball_idle.png";
+import lauraBaseballVictory from "../assets/Laura_baseball_victory_idle.png";
+
+import lilyBaseballIdle from "../assets/Lily_baseball_idle.png";
+import lilyBaseballVictory from "../assets/Lily_baseball_victory_idle.png";
+
+import stellaBaseballIdle from "../assets/Stella_baseball_idle.png";
+import stellaBaseballVictory from "../assets/Stella_baseball_victory_idle.png";
+
 export interface PlayerProps {
   name: string;
   texture: string;
@@ -31,10 +65,9 @@ export interface GameBounds {
 }
 
 export class PraterScene extends Phaser.Scene {
-  private rounds !: RoundConfig[];
+  private rounds!: RoundConfig[];
   private getRounds(): RoundConfig[] {
     const { height } = this.scale;
-    // Базові відступи адаптуємо під висоту екрана
     const minY = height * 0.25;
     const maxY = height * 0.5;
 
@@ -94,10 +127,9 @@ export class PraterScene extends Phaser.Scene {
         gameMode: "chaotic",
       },
     ];
-  } 
+  }
 
   private bounds!: GameBounds;
-
   private currentData!: PlayersProps;
   private currentRoundIndex: number = 0;
   private score: number = 0;
@@ -118,26 +150,105 @@ export class PraterScene extends Phaser.Scene {
     super({ key: "PraterScene" });
   }
 
+  preload() {
+    // 1. Фон та елементи гри
+    this.load.image("attractionBackground", attractionBackground);
+    this.load.spritesheet("target_place_idle", targetPlace, { frameWidth: 32, frameHeight: 32 });
+    this.load.image("target", targetImg);
+    this.load.spritesheet("baseball_idle", baseball, { frameWidth: 32, frameHeight: 32 });
+
+    // 2. Іконки інтерфейсу (HUD)
+    this.load.image("round", roundIcon);
+    this.load.image("attempts", attemptsIcon);
+    this.load.image("hit", hitIcon);
+
+    // 3. Персонажі (Хлопці)
+    this.load.spritesheet("Greg_baseball_idle", gregBaseballIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Greg_baseball_throw_idle", gregBaseballThrow, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Greg_baseball_victory_idle", gregBaseballVictory, { frameWidth: 32, frameHeight: 32 });
+
+    this.load.spritesheet("Damon_baseball_idle", damonBaseballIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Damon_baseball_throw_idle", damonBaseballThrow, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Damon_baseball_victory_idle", damonBaseballVictory, { frameWidth: 32, frameHeight: 32 });
+
+    this.load.spritesheet("Tom_baseball_idle", tomBaseballIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Tom_baseball_throw_idle", tomBaseballThrow, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Tom_baseball_victory_idle", tomBaseballVictory, { frameWidth: 32, frameHeight: 32 });
+
+    // 4. Персонажі (Дівчата)
+    this.load.spritesheet("Laura_baseball_idle", lauraBaseballIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Laura_baseball_victory_idle", lauraBaseballVictory, { frameWidth: 32, frameHeight: 32 });
+
+    this.load.spritesheet("Lily_baseball_idle", lilyBaseballIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Lily_baseball_victory_idle", lilyBaseballVictory, { frameWidth: 32, frameHeight: 32 });
+
+    this.load.spritesheet("Stella_baseball_idle", stellaBaseballIdle, { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet("Stella_baseball_victory_idle", stellaBaseballVictory, { frameWidth: 32, frameHeight: 32 });
+  }
+
   create(data: PlayersProps): void {
-    const {width, height} = this.scale;
+    const { width, height } = this.scale;
     this.currentData = data;
     this.currentRoundIndex = 0;
     this.isGameOver = false;
+
     this.bounds = {
-  
-      minX: width * 0.35,  // 35% від ширини екрана зліва
-      maxX: width * 0.75,  // 75% від ширини екрана справа
-      minY: height * 0.20, // 20% від висоти зверху
-      maxY: height * 0.55, // 55% від висоти знизу
-    
-    }
-    this.rounds = this.getRounds(); 
+      minX: width * 0.35,
+      maxX: width * 0.75,
+      minY: height * 0.20,
+      maxY: height * 0.55,
+    };
+
+    // Створюємо анімації локально для цієї сцени
+    this.createAnimations();
+
+    this.rounds = this.getRounds();
     this.setupEnvironment();
     this.setupCharacters();
     this.setupUI();
     this.setupInputs();
 
     this.startRound(this.currentRoundIndex);
+  }
+
+  private createAnimations(): void {
+    if (!this.anims.exists("target_place_anim")) {
+      this.anims.create({
+        key: "target_place_anim",
+        frames: this.anims.generateFrameNumbers("target_place_idle", { start: 0, end: 3 }),
+        frameRate: 5,
+        repeat: -1,
+      });
+    }
+
+    if (!this.anims.exists("baseball_anim")) {
+      this.anims.create({
+        key: "baseball_anim",
+        frames: this.anims.generateFrameNumbers("baseball_idle", { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1,
+      });
+    }
+
+    const characters = ["Greg", "Damon", "Tom", "Laura", "Lily", "Stella"];
+    characters.forEach((name) => {
+      const animsConfig = [
+        { key: `${name}_baseball_anim`, texture: `${name}_baseball_idle` },
+        { key: `${name}_baseball_throw_anim`, texture: `${name}_baseball_throw_idle` },
+        { key: `${name}_baseball_victory_anim`, texture: `${name}_baseball_victory_idle` },
+      ];
+
+      animsConfig.forEach(({ key, texture }) => {
+        if (!this.anims.exists(key)) {
+          this.anims.create({
+            key,
+            frames: this.anims.generateFrameNumbers(texture, { start: 0, end: 3 }),
+            frameRate: 6,
+            repeat: -1,
+          });
+        }
+      });
+    });
   }
 
   private setupEnvironment(): void {
@@ -394,7 +505,8 @@ export class PraterScene extends Phaser.Scene {
 
     this.maleSprite
       .stop()
-      .setTexture(`${this.currentData.male.name}_baseball_throw_idle`);
+      .setTexture(`${this.currentData.male.name}_baseball_throw_idle`)
+      .play(`${this.currentData.male.name}_baseball_throw_anim`);
 
     this.tweens.add({
       targets: ball,
@@ -506,12 +618,12 @@ export class PraterScene extends Phaser.Scene {
       );
     }
 
-    createInteractiveButton(this, this.scale.width * 0.45, this.scale.height*0.3, "restart", () => {
+    createInteractiveButton(this, this.scale.width * 0.45, this.scale.height * 0.3, "restart", () => {
       this.scene.restart(this.currentData);
     });
 
-    createInteractiveButton(this, this.scale.width * 0.45, this.scale.height*0.5, "go_to_map", () => {
-      this.scene.start("WorldScene");
+    createInteractiveButton(this, this.scale.width * 0.45, this.scale.height * 0.5, "go_to_map", () => {
+      this.scene.start("WorldScene", this.currentData);
     });
   }
 
