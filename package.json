@@ -1,18 +1,56 @@
 {
   "name": "goodtimes",
   "private": true,
-  "version": "0.0.0",
+  "packageManager": "npm@11.20.0",
   "type": "module",
+  "engines": {
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "dev:server": "tsx watch src/index.ts",
+    "build": "vite build",
+    "build:server": "tsdown",
+    "composer:deploy": "prisma deploy",
+    "composer:dev": "prisma dev",
+    "contract:emit": "prisma contract emit",
+    "db:init": "prisma db init",
+    "db:update": "prisma db update",
+    "db:verify": "prisma db verify",
+    "deploy": "npm run build && npm run composer:deploy",
+    "dev:composer": "npm run build:server && npm run composer:dev",
+    "migrate": "prisma db migrate",
+    "migration:plan": "prisma migration plan",
+    "migration:show": "prisma migration show",
+    "migration:status": "prisma migration status",
+    "start": "node dist/server.mjs"
   },
   "dependencies": {
-    "phaser": "^4.2.1"
+    "@prisma/composer": "0.35.0",
+    "@prisma/composer-prisma-cloud": "0.35.0",
+    "@prisma/orm-postgres": "8.0.0-rc.20",
+    "alchemy": "2.0.0-beta.83",
+    "dotenv": "^18.0.9",
+    "phaser": "^4.2.1",
+    "temporal-polyfill": "^1.0.6"
+  },
+  "devDependencies": {
+    "@prisma/dev": "0.25.2",
+    "@types/node": "^26.6.5",
+    "prisma": "8.0.0-rc.28",
+    "tsdown": "^0.23.1",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.5"
+  },
+  "overrides": {
+    "effect": "4.0.3",
+    "@effect/platform-bun": "4.0.3",
+    "@effect/platform-node": "4.0.3",
+    "@effect/platform-node-shared": "4.0.3",
+    "@effect/sql-d1": "4.0.3",
+    "@effect/sql-sqlite-do": "4.0.3",
+    "@effect/vitest": "4.0.3",
+    "@vitejs/devtools": "0.7.6"
   }
 }

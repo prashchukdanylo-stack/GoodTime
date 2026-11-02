@@ -5,7 +5,7 @@ import { showNextRoundBanner } from "../ui/nextRound";
 
 
 import albertinaBackground from "../assets/albertinaBackground.png";
-
+import brush from "../assets/brush.png";
 
 const pieceModules = [
   import.meta.glob("../assets/pieces1/*.jpg", { eager: true, query: "?url", import: "default" }),
@@ -23,7 +23,8 @@ export class AlbertinaScene extends Phaser.Scene {
   private pieces: Phaser.GameObjects.Image[] = [];
   private placedCounts = 0;
   private isGameOver = false;
- 
+  private enemies!: Phaser.Physics.Arcade.Group;
+
   private readonly canvasMinX = 708;
   private readonly canvasMinY = 224;
   private readonly canvasWidth = 442;
@@ -36,7 +37,7 @@ export class AlbertinaScene extends Phaser.Scene {
   preload() {
     
     this.load.image("albertinaBackground", albertinaBackground);
-
+    this.load.spritesheet("brush", brush, {frameWidth:32, frameHeight:32});
 
     pieceModules.forEach((modules, roundIndex) => {
       Object.entries(modules).forEach(([filePath, url]) => {
@@ -48,18 +49,28 @@ export class AlbertinaScene extends Phaser.Scene {
 
   create(data: PlayersProps) {
     this.currentData = data;
+    this.currentRound = 0;
     this.isGameOver = false;
     this.placedCounts = 0;
     this.pieces = [];
 
     const { width, height } = this.scale;
 
-   
+
     this.add
       .image(0, 0, "albertinaBackground")
       .setOrigin(0, 0)
       .setDisplaySize(width, height);
 
+
+    this.enemies = this.physics.add.group();
+
+    this.anims.create({
+      key: "brush_anim",
+      frames: this.anims.generateFrameNumbers("brush", {start:0, end:7}),
+      frameRate:5,
+      repeat:-1,
+    })
     
     this.startRound(this.currentRound);
 
@@ -94,6 +105,7 @@ export class AlbertinaScene extends Phaser.Scene {
         imgObject.disableInteractive();
         imgObject.setData("isPlaced", true);
         this.placedCounts++;
+        if (this.placedCounts%(4 -this.currentRound)===0)this.createEnemy();
 
         if (this.placedCounts >= this.totalPieces) {
           this.clearArt();
@@ -109,7 +121,25 @@ export class AlbertinaScene extends Phaser.Scene {
     });
   }
 
+
+  update(time: number, delta: number): void {
+    if (this.isGameOver) return;
+
+    const pointer = this.input.activePointer;
+    const enemiesChildren = this.enemies.getChildren() as Phaser.Physics.Arcade.Sprite[];
+
+    for (const enemy of enemiesChildren) {
+      const distance = Phaser.Math.Distance.Between(pointer.x, pointer.y, enemy.x, enemy.y);
+      if (distance < (enemy.displayWidth/2)) {
+        this.handleGameOver();
+        break;
+      }
+    }
+  }
+
   private startRound(roundIndex: number): void {
+
+
     this.placedCounts = 0;
     const gridCols = this.gridCols + roundIndex;
     const gridRows = this.gridRows + roundIndex;
@@ -142,6 +172,34 @@ export class AlbertinaScene extends Phaser.Scene {
     }
   }
 
+  private createEnemy() {
+
+    
+      const x = Phaser.Math.Between(100, this.scale.width - 100);
+      const y = Phaser.Math.Between(100, this.scale.height - 100);
+
+      const enemy = this.enemies.create(x,y, "brush") as Phaser.Physics.Arcade.Sprite;
+      enemy.setDisplaySize(80,80);
+      enemy.setCollideWorldBounds(true);
+      enemy.setBounce(1,1);
+      enemy.play("brush_anim");
+
+      const speed = 600;
+      const angle = Phaser.Math.Between(0, Math.PI * 2);
+      enemy.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+
+      this.time.addEvent({
+        delay: Phaser.Math.Between(2000, 4000),
+        loop: true,
+        callback: () => {
+          if (this.isGameOver || !enemy.active) return;
+          const newAngle = Phaser.Math.Between(0, Math.PI * 2);
+          enemy.setVelocity(Math.cos(newAngle) * speed, Math.sin(newAngle) * speed);
+        }
+      })
+     
+  }
+
   private goToNextRound() {
     showNextRoundBanner({
       scene: this, 
@@ -157,6 +215,23 @@ export class AlbertinaScene extends Phaser.Scene {
       piece.destroy();
     });
     this.pieces = [];
+
+    this.enemies.clear(true, true);
+  }
+
+  private handleGameOver(): void {
+    this.isGameOver = true;
+    this.enemies.getChildren().forEach((enemy: any)=> {
+        enemy.setVelocity(0,0);
+    });
+    this.add.image(this.scale.width/2, this.scale.height/2, "game_over").setScale(3);
+
+    createInteractiveButton(this, this.scale.width * 0.1, this.scale.height * 0.1, "go_to_map", () => {
+      this.scene.start("WorldScene", this.currentData);
+    });
+    createInteractiveButton(this, this.scale.width * 0.1, this.scale.height * 0.3, "restart", () => {
+      this.scene.restart(this.currentData);
+    })
   }
 
   private handleVictory(): void {
