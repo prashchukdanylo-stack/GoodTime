@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
-
+import { completeLevel } from "../ui/completeLevel";
 
 import albertinaBackground from "../assets/albertinaBackground.png";
 import brush from "../assets/brush.png";
@@ -73,7 +73,7 @@ export class AlbertinaScene extends Phaser.Scene {
     })
     
     this.startRound(this.currentRound);
-
+    this.handleVictory();
    
     this.input.on(
       "drag",
@@ -243,5 +243,7 @@ export class AlbertinaScene extends Phaser.Scene {
     });
     
     this.registry.set("AlbertinaScene_completed", true);
+    completeLevel("AlbertinaScene");
   }
+
 }

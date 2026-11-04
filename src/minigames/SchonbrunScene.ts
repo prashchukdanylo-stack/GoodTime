@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
-
+import { completeLevel } from "../ui/completeLevel";
 import bushImg from "../assets/bush.png";
 import snakeIdle from "../assets/snake_idle.png";
 import rosesSides from "../assets/roses_sides_idle.png";
@@ -390,6 +390,7 @@ export class ShconbrunScene extends Phaser.Scene {
   }
 
   private startRound(roundIndex: number) {
+
     this.isRound = false;
     this.roundIndex = roundIndex;
     this.cameras.main.setZoom(6);
@@ -614,7 +615,8 @@ export class ShconbrunScene extends Phaser.Scene {
       this.scene.start("WorldScene", this.currentData);
     });
 
-    this.registry.set("schonbrun_idle_completed", true);
+    this.registry.set("SchonbrunScene_completed", true);
+    completeLevel("SchonbrunScene");
   }
 
   override update() {

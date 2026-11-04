@@ -1,24 +1,18 @@
+import "dotenv/config";
 import postgres from "@prisma/orm-postgres/runtime";
 import { contractFromJson } from "@prisma/orm-postgres/static";
-
 import "temporal-polyfill/global";
 
-import service from "../../service.ts";
 import type { Contract } from "./generated/contract.d.ts";
 import contractJson from "./generated/contract.json" with { type: "json" };
 
 export const contract = contractFromJson<Contract>(contractJson);
 
-function loadComposerDatabase() {
-  try {
-    return service.load().database.client;
-  } catch {
-    return undefined;
-  }
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL не знайдено в змінних середовища (.env)");
 }
 
-export const db =
-  loadComposerDatabase() ??
-  (process.env.DATABASE_URL
-    ? postgres({ contract, url: process.env.DATABASE_URL })
-    : postgres({ contract }));
+export const db = postgres({ 
+  contract, 
+  url: process.env.DATABASE_URL 
+});

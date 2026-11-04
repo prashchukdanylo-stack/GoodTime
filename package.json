@@ -23,19 +23,24 @@
     "migration:plan": "prisma migration plan",
     "migration:show": "prisma migration show",
     "migration:status": "prisma migration status",
-    "start": "node dist/server.mjs"
+    "start": "node dist/server.mjs",
+    "server": "tsx src/server.ts"
   },
   "dependencies": {
     "@prisma/composer": "0.35.0",
     "@prisma/composer-prisma-cloud": "0.35.0",
     "@prisma/orm-postgres": "8.0.0-rc.20",
     "alchemy": "2.0.0-beta.83",
+    "cors": "^2.8.6",
     "dotenv": "^18.0.9",
+    "express": "^5.3.0",
     "phaser": "^4.2.1",
     "temporal-polyfill": "^1.0.6"
   },
   "devDependencies": {
     "@prisma/dev": "0.25.2",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
     "prisma": "8.0.0-rc.28",
     "tsdown": "^0.23.1",
