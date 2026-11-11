@@ -89,6 +89,7 @@ class GameLocation {
       duration: duration,
       ease: "Linear",
       onComplete: () => {
+        localStorage.setItem("lastScene", this.targetSceneKey);
         this.scene.scene.start(this.targetSceneKey, this.playerData);
       },
     });
@@ -200,6 +201,7 @@ export class WorldScene extends Phaser.Scene {
       .setScale(2)
       .setInteractive()
       .on("pointerdown", () => {
+        localStorage.setItem("lastScene", "MainMenuScene");
         this.scene.start("MainMenuScene");
         this.game.events.emit("cursor:default");
       });

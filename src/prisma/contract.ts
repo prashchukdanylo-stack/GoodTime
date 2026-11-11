@@ -8,6 +8,7 @@ export const contract = defineContract(
         id: field.id.uuidv7String(),
         username: field.text().optional(),
         email: field.text().unique(),
+        password: field.text(),
         createdAt: field.temporal.createdAtString(),
         updatedAt: field.temporal.updatedAtString(),
       },

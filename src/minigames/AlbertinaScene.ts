@@ -73,7 +73,6 @@ export class AlbertinaScene extends Phaser.Scene {
     })
     
     this.startRound(this.currentRound);
-    this.handleVictory();
    
     this.input.on(
       "drag",
@@ -239,6 +238,7 @@ export class AlbertinaScene extends Phaser.Scene {
     this.add.image(this.scale.width / 2, this.scale.height / 2, "victory").setScale(3);
     
     createInteractiveButton(this, this.scale.width * 0.1, this.scale.height * 0.1, "go_to_map", () => {
+      localStorage.setItem("lastScene", "WorldScene");
       this.scene.start("WorldScene", this.currentData);
     });
     

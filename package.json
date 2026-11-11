@@ -27,10 +27,12 @@
     "server": "tsx src/server.ts"
   },
   "dependencies": {
+    "@fontsource/press-start-2p": "^5.3.0",
     "@prisma/composer": "0.35.0",
     "@prisma/composer-prisma-cloud": "0.35.0",
     "@prisma/orm-postgres": "8.0.0-rc.20",
     "alchemy": "2.0.0-beta.83",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
@@ -39,6 +41,7 @@
   },
   "devDependencies": {
     "@prisma/dev": "0.25.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",

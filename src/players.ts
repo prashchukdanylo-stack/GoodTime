@@ -12,10 +12,15 @@ export async function getPlayerById(id: string) {
     return await db.orm.public.Player.first({id});
 }
 
-export async function createPlayer(username: string, email: string) {
+export async function getPlayerByEmail(email:string) {
+    return await db.orm.public.Player.first({email});
+}
+
+export async function createPlayer(username: string, email: string, password: string) {
     return await db.orm.public.Player.create({
         username: username,
-        email: email
+        email: email,
+        password: password
     });
 }
 

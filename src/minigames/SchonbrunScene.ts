@@ -612,6 +612,7 @@ export class ShconbrunScene extends Phaser.Scene {
     });
 
     createInteractiveButton(this, 400, 300, "go_to_map", () => {
+      localStorage.setItem("lastScene", "WorldScene");
       this.scene.start("WorldScene", this.currentData);
     });
 

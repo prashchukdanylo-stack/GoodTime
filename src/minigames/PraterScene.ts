@@ -2,18 +2,18 @@ import Phaser from "phaser";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
 import { completeLevel } from "../ui/completeLevel";
-// Імпортуємо асети для атракціону (Prater)
+
 import attractionBackground from "../assets/attractionBackground.png";
 import targetPlace from "../assets/target_place_idle.png";
 import targetImg from "../assets/target.png";
 import baseball from "../assets/baseball_idle.png";
 
-// UI іконки HUD
+
 import roundIcon from "../assets/round.png";
 import attemptsIcon from "../assets/attempts.png";
 import hitIcon from "../assets/hit.png";
 
-// Персонажі (Baseball версії для хлопців та дівчат)
+
 import gregBaseballIdle from "../assets/Greg_baseball_idle.png";
 import gregBaseballThrow from "../assets/Greg_baseball_throw_idle.png";
 import gregBaseballVictory from "../assets/Greg_baseball_victory_idle.png";
@@ -151,18 +151,16 @@ export class PraterScene extends Phaser.Scene {
   }
 
   preload() {
-    // 1. Фон та елементи гри
+    
     this.load.image("attractionBackground", attractionBackground);
     this.load.spritesheet("target_place_idle", targetPlace, { frameWidth: 32, frameHeight: 32 });
     this.load.image("target", targetImg);
     this.load.spritesheet("baseball_idle", baseball, { frameWidth: 32, frameHeight: 32 });
 
-    // 2. Іконки інтерфейсу (HUD)
     this.load.image("round", roundIcon);
     this.load.image("attempts", attemptsIcon);
     this.load.image("hit", hitIcon);
 
-    // 3. Персонажі (Хлопці)
     this.load.spritesheet("Greg_baseball_idle", gregBaseballIdle, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet("Greg_baseball_throw_idle", gregBaseballThrow, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet("Greg_baseball_victory_idle", gregBaseballVictory, { frameWidth: 32, frameHeight: 32 });
@@ -175,7 +173,6 @@ export class PraterScene extends Phaser.Scene {
     this.load.spritesheet("Tom_baseball_throw_idle", tomBaseballThrow, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet("Tom_baseball_victory_idle", tomBaseballVictory, { frameWidth: 32, frameHeight: 32 });
 
-    // 4. Персонажі (Дівчата)
     this.load.spritesheet("Laura_baseball_idle", lauraBaseballIdle, { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet("Laura_baseball_victory_idle", lauraBaseballVictory, { frameWidth: 32, frameHeight: 32 });
 
@@ -199,7 +196,7 @@ export class PraterScene extends Phaser.Scene {
       maxY: height * 0.55,
     };
 
-    // Створюємо анімації локально для цієї сцени
+    
     this.createAnimations();
 
     this.rounds = this.getRounds();
@@ -624,6 +621,7 @@ export class PraterScene extends Phaser.Scene {
     });
 
     createInteractiveButton(this, this.scale.width * 0.45, this.scale.height * 0.5, "go_to_map", () => {
+      localStorage.setItem("lastScene", "WorldScene");
       this.scene.start("WorldScene", this.currentData);
     });
   }

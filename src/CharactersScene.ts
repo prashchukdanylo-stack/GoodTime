@@ -147,6 +147,7 @@ export class CharactersScene extends Phaser.Scene {
       const currentSelectedMale = maleCharacters[this.maleIndex];
       const currentSelectedFemale = femaleCharacters[this.femaleIndex];
       this.game.events.emit("cursor:default");
+      localStorage.setItem("lastScene", "WorldScene");
       this.scene.start("WorldScene", { male: currentSelectedMale, female: currentSelectedFemale });
     });
 
@@ -172,8 +173,8 @@ export class CharactersScene extends Phaser.Scene {
     });
 
     this.malePreview = this.add.sprite(leftColumnX, charY, maleCharacters[this.maleIndex].texture).play(maleCharacters[this.maleIndex].anim).setScale(15);
-    this.maleName = this.add.image(leftColumnX, uiY, maleCharacters[this.maleIndex].nameImg);
+    this.maleName = this.add.image(leftColumnX, uiY, maleCharacters[this.maleIndex].nameImg).setScale(2);
     this.femalePreview = this.add.sprite(rightColumnX, charY, femaleCharacters[this.femaleIndex].texture).play(femaleCharacters[this.femaleIndex].anim).setScale(15);
-    this.femaleName = this.add.image(rightColumnX, uiY, femaleCharacters[this.femaleIndex].nameImg);
+    this.femaleName = this.add.image(rightColumnX, uiY, femaleCharacters[this.femaleIndex].nameImg).setScale(2);
   }
 }

@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import "@fontsource/press-start-2p";
 import { MainMenuScene } from "./MainMenuScene";
 import {CharactersScene} from "./CharactersScene";
 import { WorldScene } from "./WorldScene";
@@ -8,7 +9,12 @@ import { CursorScene } from "./CursorScene";
 import { PraterScene } from "./minigames/PraterScene";
 import { ShconbrunScene } from "./minigames/SchonbrunScene";
 import { AlbertinaScene } from "./minigames/AlbertinaScene";
-new Phaser.Game({
+
+await document.fonts.load('12px "Press Start 2P"');
+
+const savedScene = localStorage.getItem("lastScene") || "MainMenuScene";
+
+const game = new Phaser.Game({
   width: window.innerWidth,
   height: window.innerHeight,
   pixelArt: true,
@@ -29,3 +35,10 @@ new Phaser.Game({
   },
   scene: [PreloadScene,MainMenuScene, CharactersScene, WorldScene, LocationScene,CursorScene, PraterScene, ShconbrunScene, AlbertinaScene],
 });
+
+/*game.events.once("ready", () => {
+  if (savedScene && savedScene !== "MainMenuScene" && localStorage.getItem("playerId")) {
+    game.scene.start(savedScene);
+  }
+})
+  */

@@ -1,0 +1,41 @@
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.game-toast {
+  background: rgba(20, 20, 20, 0.95);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-family: "Press Start 2P";
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border-left: 4px solid #3498db;
+  pointer-events: auto;
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  max-width: 300px;
+}
+
+.game-toast.error {
+  border-left-color: #e74c3c;
+}
+
+.game-toast.success {
+  border-left-color: #2ecc71;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}

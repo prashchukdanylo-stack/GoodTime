@@ -8,7 +8,7 @@ import goToMap from "./assets/go_to_map.png";
 import victory from "./assets/victory.png"; 
 import restart from "./assets/restart.png";
 import gameOver from "./assets/game_over.png";
-
+import accountBtn from "./assets/account_btn.png";
 export class PreloadScene extends Phaser.Scene {
   constructor() {
     super({ key: "PreloadScene" });
@@ -24,6 +24,7 @@ export class PreloadScene extends Phaser.Scene {
     this.load.spritesheet("restart", restart, {frameWidth:64, frameHeight:32});
     this.load.spritesheet("game_over", gameOver, {frameWidth:64, frameHeight:32});
     this.load.image("victory", victory);
+    this.load.spritesheet("account_btn", accountBtn, {frameWidth: 32, frameHeight: 32});
   }
 
   create() {

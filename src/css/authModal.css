@@ -1,0 +1,64 @@
+#auth-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#auth-form-container {
+  background: rgba(0, 0, 0, 0.95);
+  padding: 25px;
+  border-radius: 10px;
+  color: #fff;
+  font-family: "Press Start 2P";
+  width: 400px;
+  z-index: 1000;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+.auth-field {
+  margin-bottom: 12px;
+}
+
+.auth-field label {
+  font-size: 14px;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 6px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  font-family: "Press Start 2P"
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.auth-actions button {
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: none;
+  background: #3498db;
+  color: #fff;
+  font-weight: bold;
+  font-family: "Press Start 2P"
+}
+
+.auth-actions button#btn-close {
+  background: #555;
+}

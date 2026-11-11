@@ -1,8 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import bcrypt from "bcrypt";
+
 import {listPlayers, getPlayerById, createPlayer} from "./players.ts";
 import { db } from "./prisma/db.ts";
+import { hashPassword } from "./hashPassword.ts";
+
 
 const app = express();
 
@@ -40,12 +44,15 @@ app.get("/api/players/:id", async (req, res) => {
 
 app.post("/api/register", async (req, res) => {
     try {
-        const {username, email} = req.body;
-        if (!username || !email){
-            return res.status(400).json({error: "введіть ім'я та пошту"});
+        const {username,email, password} = req.body;
+        if (!password|| !email || !username){
+            return res.status(400).json({error: "введіть ім'я, пошту та пароль"});
         }
-        const newPlayer = await createPlayer(username, email);
-        res.status(200).json(newPlayer);
+        const dbPassword = await hashPassword(password);
+        const newPlayer = await createPlayer(username, email, dbPassword);
+
+        const {password: _omit, ...safePlayer} = newPlayer;
+        res.status(200).json(safePlayer);
     }
     catch(e) {
         console.error(e);
@@ -55,15 +62,23 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/login", async (req, res) => {
     try {
-        const {email} = req.body;
-        if (!email){
-            return res.status(400).json({error: "email pls"});
+        const {email, password} = req.body;
+        if (!email || ! password){
+            return res.status(400).json({error: "email or password"});
         }
         const player = await db.orm.public.Player.first({email});
         if (!player) {
             return res.status(404).json({error: "player with this email is not found"});
         }
-        res.json(player);
+        const isMatch = await bcrypt.compare(password, player.password);
+        if (!isMatch) {
+            return res.status(401).json({error: "invalid password"});
+        }
+        res.json({
+            id: player.id,
+            username: player.username,
+            email: player.email
+        });
     } catch(error) {
         console.error(error);
         res.status(500).json({error: "login error"});
