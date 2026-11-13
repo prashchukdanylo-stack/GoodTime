@@ -10,6 +10,8 @@ import stephanIdle from "./assets/stephan_idle.png";
 import schonbrunIdle from "./assets/schonbrun_idle.png";
 import belvedereIdle from "./assets/belvedere_idle.png";
 
+import { isCompleted, loadProgress } from "./progress";
+
 interface PlayerProps {
   name: string;
   texture: string;
@@ -30,7 +32,6 @@ interface LocationConfig {
 }
 
 class GameLocation {
-  private isCompleted: boolean;
   private targetSceneKey: string;
   private playerData: PlayersProps;
   private scene: Phaser.Scene;
@@ -54,10 +55,6 @@ class GameLocation {
     this.playerData = playerData;
     this.target = target;
 
-    this.isCompleted = this.scene.registry.get(
-      `${this.targetSceneKey}_completed`,
-    );
-
     this.sprite.setInteractive();
     this.sprite.on("pointerdown", this.moveToLocation, this);
     this.sprite.on("pointerover", () =>
@@ -66,12 +63,17 @@ class GameLocation {
     this.sprite.on("pointerout", () =>
       this.scene.game.events.emit("cursor:default"),
     );
+  }
 
-    if (this.isCompleted && !this.starIcon) {
+  public refresh(): void {
+    if (!this.sprite.active) return;
+    if (
+      isCompleted(this.scene.registry, this.targetSceneKey) &&
+      !this.starIcon
+    ) {
       this.createStar();
     }
   }
-
   private moveToLocation(): void {
     this.scene.game.events.emit("cursor:default");
     this.scene.tweens.killTweensOf(this.target);
@@ -139,36 +141,6 @@ export class WorldScene extends Phaser.Scene {
   async create(data: PlayersProps) {
     const { width, height } = this.scale;
 
-    const playerId = localStorage.getItem("playerId");
-    if (playerId) {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/player-progress/${playerId}`,
-        );
-        if (response.ok) {
-          const progressData = await response.json();
-          const idToSceneName: Record<number, string> = {
-            1: "PraterScene",
-            2: "AlbertinaScene",
-            3: "StephanScene",
-            4: "SchonbrunScene",
-            5: "BelvedereScene",
-          };
-
-          progressData.forEach((item: any) => {
-            if (item.isCompleted) {
-              const sceneName = idToSceneName[item.levelId];
-              if (sceneName){
-                this.registry.set(`${sceneName}_completed`, true);
-              }
-              
-            }
-          });
-        }
-      } catch (error) {
-        console.error("error with loading level progress from server: ", error);
-      }
-    }
     const locationsToAnims = [
       "attraction",
       "albertina",
@@ -265,13 +237,25 @@ export class WorldScene extends Phaser.Scene {
       },
     ];
 
-    locationsConfig.forEach(({ name, targetScene, x, y, scale = 9 }) => {
-      const sprite = this.add
-        .sprite(x, y, `${name}_idle`)
-        .play(`${name}_anim`)
-        .setScale(scale);
+    const locations = locationsConfig.map(
+      ({ name, targetScene, x, y, scale = 9 }) => {
+        const sprite = this.add
+          .sprite(x, y, `${name}_idle`)
+          .play(`${name}_anim`)
+          .setScale(scale);
+        const location = new GameLocation(
+          this,
+          sprite,
+          targetScene,
+          data,
+          this.player,
+        );
+        location.refresh(); // якщо прогрес уже в registry
+        return location;
+      },
+    );
 
-      new GameLocation(this, sprite, targetScene, data, this.player);
-    });
+    await loadProgress(this.registry); // один раз за сесію, далі миттєво
+    locations.forEach((l) => l.refresh()); // додає зірки після завантаження
   }
 }

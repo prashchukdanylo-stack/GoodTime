@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
-import { completeLevel } from "../ui/completeLevel";
+import { submitLevelResults } from "../progress";
 
 import attractionBackground from "../assets/attractionBackground.png";
 import targetPlace from "../assets/target_place_idle.png";
@@ -605,15 +605,15 @@ export class PraterScene extends Phaser.Scene {
 
     this.add.image(this.scale.width / 2 + 30, this.scale.height * 0.2, message).setScale(5);
 
-    if (message === "victory") {
-      this.registry.set("PraterScene_completed", true);
+    const won = message === "victory";
+
+    if (won) {
       this.femaleSprite.play(
         `${this.currentData.female.name}_baseball_victory_anim`,
       );
       this.maleSprite.play(
         `${this.currentData.male.name}_baseball_victory_anim`,
       );
-      completeLevel("PraterScene");
     }
 
     createInteractiveButton(this, this.scale.width * 0.45, this.scale.height * 0.3, "restart", () => {
@@ -624,6 +624,11 @@ export class PraterScene extends Phaser.Scene {
       localStorage.setItem("lastScene", "WorldScene");
       this.scene.start("WorldScene", this.currentData);
     });
+
+    submitLevelResults(this.registry, "PraterScene", {
+              roundsCompleted: won ? this.rounds.length : this.currentRoundIndex,
+              won,
+            }).catch((err) => console.error("failed to save level result: ", err));
   }
 
   private updateHUD(): void {

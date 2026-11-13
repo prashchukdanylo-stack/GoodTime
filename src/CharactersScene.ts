@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 import { createInteractiveButton } from "./ui/createInteractiveButton";
+import { loadSelectedCharacters } from "./characters";
+
 
 import homeBackground from "./assets/homeBackground.png";
 import arrowLeft from "./assets/arrowLeft_idle.png";
@@ -21,18 +23,27 @@ import stellaIdle from "./assets/Stella_idle.png";
 import lauraName from "./assets/Laura_name.png";
 import lilyName from "./assets/Lily_name.png";
 import stellaName from "./assets/Stella_name.png";
+import { fetchCharacters, saveSelectedCharacters } from "./characters";
 
-const maleCharacters = [
+const maleCharacters: CharacterOption[] = [
   { name: "Greg", texture: "Greg_idle", anim: "Greg_anim", nameImg: "Greg_name" },
   { name: "Damon", texture: "Damon_idle", anim: "Damon_anim", nameImg: "Damon_name" },
   { name: "Tom", texture: "Tom_idle", anim: "Tom_anim", nameImg: "Tom_name" },
 ];
 
-const femaleCharacters = [
+const femaleCharacters: CharacterOption[] = [
   { name: "Laura", texture: "Laura_idle", anim: "Laura_anim", nameImg: "Laura_name" },
   { name: "Lily", texture: "Lily_idle", anim: "Lily_anim", nameImg: "Lily_name" },
   { name: "Stella", texture: "Stella_idle", anim: "Stella_anim", nameImg: "Stella_name" },
 ];
+
+interface CharacterOption {
+  id?: string;
+  name: string;
+  texture: string;
+  anim: string;
+  nameImg: string;
+}
 
 export class CharactersScene extends Phaser.Scene {
   private maleIndex = 0;
@@ -91,8 +102,25 @@ export class CharactersScene extends Phaser.Scene {
     this.femaleName.setTexture(currentFemale.nameImg);
   }
 
-  create() {
-    
+  async create() {
+      try {
+      const list = await fetchCharacters();
+      const byName = new Map(list.map((c) => 
+        [c.name, c.id]
+));
+        [...maleCharacters, ...femaleCharacters].forEach((c) => c.id = byName.get(c.name));
+    } catch(error) {
+      console.error("failed to load characters: ", error);
+    }
+
+    const saved = loadSelectedCharacters();
+if (saved) {
+  const mi = maleCharacters.findIndex((c) => c.name === saved.male);
+  const fi = femaleCharacters.findIndex((c) => c.name === saved.female);
+  this.maleIndex = mi >= 0 ? mi : 0;
+  this.femaleIndex = fi >= 0 ? fi : 0;
+}
+
     this.anims.create({
       key: "arrowLeft_anim",
       frames: this.anims.generateFrameNumbers("arrowLeft_idle", { start: 0, end: 3 }),
@@ -148,6 +176,15 @@ export class CharactersScene extends Phaser.Scene {
       const currentSelectedFemale = femaleCharacters[this.femaleIndex];
       this.game.events.emit("cursor:default");
       localStorage.setItem("lastScene", "WorldScene");
+
+      if (currentSelectedFemale.id && currentSelectedMale.id) {
+    saveSelectedCharacters(
+      currentSelectedMale.id, 
+      currentSelectedFemale.id, 
+      currentSelectedMale.name, 
+      currentSelectedFemale.name
+    ).catch(error => console.error("failed to save characters: ", error));
+  }
       this.scene.start("WorldScene", { male: currentSelectedMale, female: currentSelectedFemale });
     });
 

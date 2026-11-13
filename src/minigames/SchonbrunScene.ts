@@ -2,7 +2,8 @@ import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
-import { completeLevel } from "../ui/completeLevel";
+import { submitLevelResults } from "../progress";
+
 import bushImg from "../assets/bush.png";
 import snakeIdle from "../assets/snake_idle.png";
 import rosesSides from "../assets/roses_sides_idle.png";
@@ -579,6 +580,11 @@ export class ShconbrunScene extends Phaser.Scene {
     createInteractiveButton(this, 400, 300, "go_to_map", () => {
       this.scene.start("WorldScene", this.currentData);
     });
+
+    submitLevelResults(this.registry, "SchonbrunScene", {
+                  roundsCompleted: this.roundIndex,
+                  won: false,
+                }).catch((err) => console.error("failed to save level result: ", err));
   }
 
   onReachGoal() {
@@ -617,7 +623,10 @@ export class ShconbrunScene extends Phaser.Scene {
     });
 
     this.registry.set("SchonbrunScene_completed", true);
-    completeLevel("SchonbrunScene");
+    submitLevelResults(this.registry, "SchonbrunScene", {
+              roundsCompleted: this.mazeRounds.length,
+              won: true,
+            }).catch((err) => console.error("failed to save level result: ", err));
   }
 
   override update() {

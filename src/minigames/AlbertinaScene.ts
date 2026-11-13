@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
 import { createInteractiveButton } from "../ui/createInteractiveButton";
 import { showNextRoundBanner } from "../ui/nextRound";
-import { completeLevel } from "../ui/completeLevel";
+import { submitLevelResults } from "../progress";
 
 import albertinaBackground from "../assets/albertinaBackground.png";
 import brush from "../assets/brush.png";
@@ -230,7 +230,12 @@ export class AlbertinaScene extends Phaser.Scene {
     });
     createInteractiveButton(this, this.scale.width * 0.1, this.scale.height * 0.3, "restart", () => {
       this.scene.restart(this.currentData);
-    })
+    });
+
+    submitLevelResults(this.registry, "AlbertinaScene", {
+    roundsCompleted: this.currentRound,
+    won: false,
+  }).catch((err) => console.error("failed to save level result", err));
   }
 
   private handleVictory(): void {
@@ -242,8 +247,10 @@ export class AlbertinaScene extends Phaser.Scene {
       this.scene.start("WorldScene", this.currentData);
     });
     
-    this.registry.set("AlbertinaScene_completed", true);
-    completeLevel("AlbertinaScene");
+      submitLevelResults(this.registry, "AlbertinaScene", {
+        roundsCompleted: this.totalRounds,
+        won: true,
+      }).catch((err) => console.error("failed to save level result: ", err));
   }
 
 }

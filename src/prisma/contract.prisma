@@ -1,0 +1,75 @@
+// use prisma-8
+
+enum Gender {
+  @@type("pg/text@1")
+  Male   = "male"
+  Female = "female"
+  Other  = "other"
+}
+
+model Player {
+  id        Uuid     @id @onCreate(uuid(7))
+  username  String?
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt temporal.updatedAt() @map("updated_at")
+
+  levels    PlayerLevelProgress[]
+  sessions  GameSession[]
+  
+  maleCharacterId Uuid? @map("male_character_id")
+  femaleCharacterId Uuid? @map("female_character_id")
+
+  maleCharacter Character? @relation("PlayerMaleCharacter", fields: [maleCharacterId], references: [id], onDelete: SetNull)
+  femaleCharacter Character? @relation("PlayerFemaleCharacter", fields: [femaleCharacterId], references: [id], onDelete: SetNull)
+
+  @@map("player")
+}
+
+model GameSession {
+  id              Uuid     @id @onCreate(uuid(7))
+  playerId        Uuid     @map("player_id")
+  levelId         Int      @map("level_id")
+  roundsCompleted Int      @map("rounds_completed")
+  won             Boolean
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       temporal.updatedAt() @map("updated_at")
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@index([playerId, levelId])
+  @@check(expression: sql`rounds_completed >= 0`, name: "game_session_rounds_not_negative")
+  @@check(expression: sql`level_id >= 1`, name: "game_session_level_positive")
+  @@map("game_session")
+}
+
+model PlayerLevelProgress {
+  id              Uuid     @id @onCreate(uuid(7))
+  playerId        Uuid     @map("player_id")
+  levelId         Int      @map("level_id")
+  maxRoundReached Int      @default(0) @map("max_round_reached")
+  isCompleted     Boolean  @default(false) @map("is_completed")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       temporal.updatedAt() @map("updated_at")
+
+  player Player @relation(fields: [playerId], references: [id])
+
+  @@unique([playerId, levelId])
+  @@check(expression: sql`max_round_reached >= 0`,name: "progress_max_round_not_negative")
+  @@check(expression: sql`level_id >= 1`,name: "progress_level_positive")
+  @@map("player_level_progress")
+}
+
+model Character {
+  id          Uuid   @id @onCreate(uuid(7))
+  name        String @unique
+  gender      Gender 
+  description String
+
+  malePlayers   Player[] @relation("PlayerMaleCharacter")
+  femalePlayers   Player[] @relation("PlayerFemaleCharacter")
+
+  @@map("character")
+}
+

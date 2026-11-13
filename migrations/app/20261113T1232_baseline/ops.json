@@ -1,0 +1,807 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.character",
+    "label": "Create table \"character\"",
+    "summary": "Creates table \"character\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "character"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"character\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"character\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"character\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"character\"",
+        "sql": "CREATE TABLE \"public\".\"character\" (\n  \"description\" text NOT NULL,\n  \"gender\" text NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"name\" text NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"character_gender_check_f90b1c49\" CHECK (\"gender\" IN ('male', 'female', 'other'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"character\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"character\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"character\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.game_session",
+    "label": "Create table \"game_session\"",
+    "summary": "Creates table \"game_session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "game_session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"game_session\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"game_session\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"game_session\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"game_session\"",
+        "sql": "CREATE TABLE \"public\".\"game_session\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"level_id\" int4 NOT NULL,\n  \"player_id\" uuid NOT NULL,\n  \"rounds_completed\" int4 NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"won\" bool NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"game_session_level_positive_c5796794\" CHECK (level_id >= 1),\n  CONSTRAINT \"game_session_rounds_not_negative_0c4bee96\" CHECK (rounds_completed >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"game_session\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"game_session\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"game_session\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.player",
+    "label": "Create table \"player\"",
+    "summary": "Creates table \"player\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "player"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"player\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"player\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"player\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"player\"",
+        "sql": "CREATE TABLE \"public\".\"player\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"female_character_id\" uuid,\n  \"id\" uuid NOT NULL,\n  \"male_character_id\" uuid,\n  \"password\" text NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  \"username\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"player\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"player\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"player\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.player_level_progress",
+    "label": "Create table \"player_level_progress\"",
+    "summary": "Creates table \"player_level_progress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "player_level_progress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"player_level_progress\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"player_level_progress\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"player_level_progress\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"player_level_progress\"",
+        "sql": "CREATE TABLE \"public\".\"player_level_progress\" (\n  \"created_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"is_completed\" bool DEFAULT false NOT NULL,\n  \"level_id\" int4 NOT NULL,\n  \"max_round_reached\" int4 DEFAULT 0 NOT NULL,\n  \"player_id\" uuid NOT NULL,\n  \"updated_at\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"progress_level_positive_c5796794\" CHECK (level_id >= 1),\n  CONSTRAINT \"progress_max_round_not_negative_43c41a08\" CHECK (max_round_reached >= 0)\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"player_level_progress\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"player_level_progress\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"player_level_progress\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "unique.character.character_name_key",
+    "label": "Add unique constraint on \"character\" (name)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "character_name_key",
+        "table": "character"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"character_name_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "character_name_key",
+          "public",
+          "\"public\".\"character\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"character_name_key\" on \"character\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"character_name_key\"",
+        "sql": "ALTER TABLE \"public\".\"character\" ADD CONSTRAINT \"character_name_key\" UNIQUE (\"name\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"character_name_key\" exists on (name)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "character_name_key",
+          "public",
+          "\"public\".\"character\"",
+          "u",
+          "[\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.player.player_email_key",
+    "label": "Add unique constraint on \"player\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "player_email_key",
+        "table": "player"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"player_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "player_email_key",
+          "public",
+          "\"public\".\"player\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"player_email_key\" on \"player\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"player_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"player\" ADD CONSTRAINT \"player_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"player_email_key\" exists on (email)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "player_email_key",
+          "public",
+          "\"public\".\"player\"",
+          "u",
+          "[\"email\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.player_level_progress.player_level_progress_player_id_level_id_key",
+    "label": "Add unique constraint on \"player_level_progress\" (player_id, level_id)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "player_level_progress_player_id_level_id_key",
+        "table": "player_level_progress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"player_level_progress_player_id_level_id_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "player_level_progress_player_id_level_id_key",
+          "public",
+          "\"public\".\"player_level_progress\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "constraint \"player_level_progress_player_id_level_id_key\" on \"player_level_progress\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"player_level_progress_player_id_level_id_key\"",
+        "sql": "ALTER TABLE \"public\".\"player_level_progress\" ADD CONSTRAINT \"player_level_progress_player_id_level_id_key\" UNIQUE (\"player_id\", \"level_id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify unique constraint \"player_level_progress_player_id_level_id_key\" exists on (player_id, level_id)",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb)) AS \"result\"",
+        "params": [
+          "player_level_progress_player_id_level_id_key",
+          "public",
+          "\"public\".\"player_level_progress\"",
+          "u",
+          "[\"player_id\",\"level_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.game_session.game_session_player_id_idx_9eca16c7",
+    "label": "Create index \"game_session_player_id_idx_9eca16c7\" on \"game_session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "game_session_player_id_idx_9eca16c7",
+        "table": "game_session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"game_session_player_id_idx_9eca16c7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"game_session_player_id_idx_9eca16c7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"game_session_player_id_idx_9eca16c7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"game_session_player_id_idx_9eca16c7\"",
+        "sql": "CREATE INDEX \"game_session_player_id_idx_9eca16c7\" ON \"public\".\"game_session\" (\"player_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"game_session_player_id_idx_9eca16c7\" exists on \"game_session\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"game_session_player_id_idx_9eca16c7\"",
+          "i",
+          "I",
+          "\"public\".\"game_session\"",
+          "btree",
+          "[\"player_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.game_session.game_session_player_id_level_id_idx_02d62edd",
+    "label": "Create index \"game_session_player_id_level_id_idx_02d62edd\" on \"game_session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "game_session_player_id_level_id_idx_02d62edd",
+        "table": "game_session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"game_session_player_id_level_id_idx_02d62edd\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"game_session_player_id_level_id_idx_02d62edd\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"game_session_player_id_level_id_idx_02d62edd\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"game_session_player_id_level_id_idx_02d62edd\"",
+        "sql": "CREATE INDEX \"game_session_player_id_level_id_idx_02d62edd\" ON \"public\".\"game_session\" (\"player_id\", \"level_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"game_session_player_id_level_id_idx_02d62edd\" exists on \"game_session\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"game_session_player_id_level_id_idx_02d62edd\"",
+          "i",
+          "I",
+          "\"public\".\"game_session\"",
+          "btree",
+          "[\"player_id\",\"level_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.player.player_female_character_id_idx_b29679a6",
+    "label": "Create index \"player_female_character_id_idx_b29679a6\" on \"player\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "player_female_character_id_idx_b29679a6",
+        "table": "player"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"player_female_character_id_idx_b29679a6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"player_female_character_id_idx_b29679a6\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"player_female_character_id_idx_b29679a6\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"player_female_character_id_idx_b29679a6\"",
+        "sql": "CREATE INDEX \"player_female_character_id_idx_b29679a6\" ON \"public\".\"player\" (\"female_character_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"player_female_character_id_idx_b29679a6\" exists on \"player\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"player_female_character_id_idx_b29679a6\"",
+          "i",
+          "I",
+          "\"public\".\"player\"",
+          "btree",
+          "[\"female_character_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.player.player_male_character_id_idx_5efe68c1",
+    "label": "Create index \"player_male_character_id_idx_5efe68c1\" on \"player\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "player_male_character_id_idx_5efe68c1",
+        "table": "player"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"player_male_character_id_idx_5efe68c1\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"player_male_character_id_idx_5efe68c1\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"player_male_character_id_idx_5efe68c1\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"player_male_character_id_idx_5efe68c1\"",
+        "sql": "CREATE INDEX \"player_male_character_id_idx_5efe68c1\" ON \"public\".\"player\" (\"male_character_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"player_male_character_id_idx_5efe68c1\" exists on \"player\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"player_male_character_id_idx_5efe68c1\"",
+          "i",
+          "I",
+          "\"public\".\"player\"",
+          "btree",
+          "[\"male_character_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.player_level_progress.player_level_progress_player_id_idx_9eca16c7",
+    "label": "Create index \"player_level_progress_player_id_idx_9eca16c7\" on \"player_level_progress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "player_level_progress_player_id_idx_9eca16c7",
+        "table": "player_level_progress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"player_level_progress_player_id_idx_9eca16c7\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"player_level_progress_player_id_idx_9eca16c7\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"player_level_progress_player_id_idx_9eca16c7\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"player_level_progress_player_id_idx_9eca16c7\"",
+        "sql": "CREATE INDEX \"player_level_progress_player_id_idx_9eca16c7\" ON \"public\".\"player_level_progress\" (\"player_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"player_level_progress_player_id_idx_9eca16c7\" exists on \"player_level_progress\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"player_level_progress_player_id_idx_9eca16c7\"",
+          "i",
+          "I",
+          "\"public\".\"player_level_progress\"",
+          "btree",
+          "[\"player_id\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.game_session.game_session_player_id_fkey",
+    "label": "Add foreign key \"game_session_player_id_fkey\" on \"game_session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "game_session_player_id_fkey",
+        "table": "game_session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"game_session_player_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "game_session_player_id_fkey",
+          "public",
+          "\"public\".\"game_session\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"game_session_player_id_fkey\" on \"game_session\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"game_session_player_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"game_session\"\nADD CONSTRAINT \"game_session_player_id_fkey\"\nFOREIGN KEY (\"player_id\")\nREFERENCES \"public\".\"player\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"game_session_player_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "game_session_player_id_fkey",
+          "public",
+          "\"public\".\"game_session\"",
+          "f",
+          "[\"player_id\"]",
+          "\"public\".\"player\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.player.player_male_character_id_fkey",
+    "label": "Add foreign key \"player_male_character_id_fkey\" on \"player\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "player_male_character_id_fkey",
+        "table": "player"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"player_male_character_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "player_male_character_id_fkey",
+          "public",
+          "\"public\".\"player\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"player_male_character_id_fkey\" on \"player\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"player_male_character_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"player\"\nADD CONSTRAINT \"player_male_character_id_fkey\"\nFOREIGN KEY (\"male_character_id\")\nREFERENCES \"public\".\"character\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"player_male_character_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "player_male_character_id_fkey",
+          "public",
+          "\"public\".\"player\"",
+          "f",
+          "[\"male_character_id\"]",
+          "\"public\".\"character\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.player.player_female_character_id_fkey",
+    "label": "Add foreign key \"player_female_character_id_fkey\" on \"player\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "player_female_character_id_fkey",
+        "table": "player"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"player_female_character_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "player_female_character_id_fkey",
+          "public",
+          "\"public\".\"player\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"player_female_character_id_fkey\" on \"player\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"player_female_character_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"player\"\nADD CONSTRAINT \"player_female_character_id_fkey\"\nFOREIGN KEY (\"female_character_id\")\nREFERENCES \"public\".\"character\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"player_female_character_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "player_female_character_id_fkey",
+          "public",
+          "\"public\".\"player\"",
+          "f",
+          "[\"female_character_id\"]",
+          "\"public\".\"character\"",
+          "[\"id\"]",
+          "n",
+          "a"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.player_level_progress.player_level_progress_player_id_fkey",
+    "label": "Add foreign key \"player_level_progress_player_id_fkey\" on \"player_level_progress\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "player_level_progress_player_id_fkey",
+        "table": "player_level_progress"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"player_level_progress_player_id_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "player_level_progress_player_id_fkey",
+          "public",
+          "\"public\".\"player_level_progress\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"player_level_progress_player_id_fkey\" on \"player_level_progress\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"player_level_progress_player_id_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"player_level_progress\"\nADD CONSTRAINT \"player_level_progress_player_id_fkey\"\nFOREIGN KEY (\"player_id\")\nREFERENCES \"public\".\"player\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"player_level_progress_player_id_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "player_level_progress_player_id_fkey",
+          "public",
+          "\"public\".\"player_level_progress\"",
+          "f",
+          "[\"player_id\"]",
+          "\"public\".\"player\"",
+          "[\"id\"]",
+          "a",
+          "a"
+        ]
+      }
+    ]
+  }
+]

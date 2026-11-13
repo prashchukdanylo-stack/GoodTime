@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import "./css/authModal.css";
 import "./css/toasts.css";
 import { showToast } from "./ui/showToast";
+import { storeSelectedCharacters } from "./characters";
 
 export class MainMenuScene extends Phaser.Scene {
   cursorSprite!: Phaser.GameObjects.Image;
@@ -130,7 +131,7 @@ export class MainMenuScene extends Phaser.Scene {
         const res = await fetch("http://localhost:3000/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password}),
         });
 
         if (!res.ok) throw new Error("Email or password is not valid");
@@ -138,6 +139,8 @@ export class MainMenuScene extends Phaser.Scene {
 
         localStorage.setItem("playerId", player.id);
         localStorage.setItem("playerUsername", player.username);
+        storeSelectedCharacters(player.selectedCharacters);
+
         showToast(`Welcome back, ${player.username}!`);
         closeModal();
       } catch (e) {
