@@ -25,7 +25,14 @@
     "migration:status": "prisma migration status",
     "start": "node dist/server.mjs",
     "server": "tsx src/server.ts",
-    "seed": "tsx src/prisma/seed.ts"
+    "seed": "tsx src/prisma/seed.ts",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest",
+    "test:db:migrate": "node --env-file=.env.test ./node_modules/.bin/prisma db migrate",
+    "test:db:seed": "node --env-file=.env.test ./node_modules/.bin/tsx src/prisma/seed.ts",
+    "test:db:prepare": "npm run test:db:migrate && npm run test:db:seed"
   },
   "dependencies": {
     "@fontsource/press-start-2p": "^5.3.0",

@@ -138,6 +138,7 @@ export class AlbertinaScene extends Phaser.Scene {
 
   private startRound(roundIndex: number): void {
 
+    this.handleVictory();
 
     this.placedCounts = 0;
     const gridCols = this.gridCols + roundIndex;

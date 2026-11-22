@@ -3,14 +3,28 @@ import express from "express";
 import cors from "cors";
 import bcrypt from "bcrypt";
 
-import { listPlayers, getPlayerById, createPlayer } from "./repositories/playerRepository.ts";
+import {
+  listPlayers,
+  listActivePlayers,
+  getPlayerById,
+  createPlayer,
+  softDeletePlayer,
+  restorePlayer,
+  hardDeletePlayer,
+} from "./repositories/playerRepository.ts";
+import {
+  getPlayerGameSessions,
+  getPlayerInventory,
+  usePlayerItem,
+  finalizeGameSession,
+  deleteGameSession,
+} from "./repositories/gameRepository.ts";
 import { db } from "./prisma/db.ts";
 import { hashPassword } from "./utils/hashPassword.ts";
 import {
-  NotFoundError,
-  ValidationError,
-  recordLevelResult,
+  recordLevelResult
 } from "./services/progressService.ts";
+import { NotFoundError, ValidationError, ConflictError } from "./errors.ts";
 import {
   assertValidUuid,
   validateLoginInput,
@@ -80,6 +94,23 @@ app.get("/api/players", async (req, res) => {
     }
     console.error(error);
     res.status(500).json({ error: "error during fetching players" });
+  }
+});
+
+app.get("/api/players/active", async (req, res) => {
+  try {
+    const { limit, offset } = validatePaginationInput(
+      req.query.limit,
+      req.query.offset,
+    );
+    const players = await listActivePlayers(limit, offset);
+    res.json(players);
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(error.status).json({ error: error.message });
+    }
+    console.error(error);
+    res.status(500).json({ error: "error during fetching active players" });
   }
 });
 

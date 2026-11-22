@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import pg from "pg";
+import { Temporal } from "temporal-polyfill";
 
 let db: typeof import("../../src/prisma/db.ts").db;
 let createPlayer: typeof import("../../src/repositories/playerRepository.ts").createPlayer;
@@ -90,7 +91,7 @@ describe("Players and characters (integration)", () => {
       "hashed_pw_1",
     );
 
-    const deletedAt = new Date();
+    const deletedAt = Temporal.Now.instant();
     await db.orm.public.Player.where({ id: player.id }).update({
       deletedAt,
     });

@@ -5,7 +5,7 @@ const ALLOWED_LEVELS = [1, 2, 3, 4, 5];
 
 let db: typeof import("../../src/prisma/db.ts").db;
 let recordLevelResult: typeof import("../../src/services/progressService.ts").recordLevelResult;
-let NotFoundError: typeof import("../../src/services/progressService.ts").NotFoundError;
+let NotFoundError: typeof import("../../src/errors.ts").NotFoundError;
 let pool: pg.Pool;
 
 beforeAll(async () => {
@@ -14,8 +14,7 @@ beforeAll(async () => {
 
   db = dbModule.db;
   recordLevelResult = progressModule.recordLevelResult;
-  NotFoundError = progressModule.NotFoundError;
-
+  NotFoundError = NotFoundError;
   pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 });
 

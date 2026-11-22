@@ -2,6 +2,7 @@ import "dotenv/config";
 import postgres from "@prisma/orm-postgres/runtime";
 import { contractFromJson } from "@prisma/orm-postgres/static";
 import "temporal-polyfill/global";
+import pg from "pg";
 
 import type { Contract } from "./generated/contract.d.ts";
 import contractJson from "./generated/contract.json" with { type: "json" };
@@ -15,4 +16,8 @@ if (!process.env.DATABASE_URL) {
 export const db = postgres({ 
   contract, 
   url: process.env.DATABASE_URL 
+});
+
+export const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
 });
