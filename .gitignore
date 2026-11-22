@@ -23,5 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.env.test
 src/testQueries.ts
 src/prisma/generated/

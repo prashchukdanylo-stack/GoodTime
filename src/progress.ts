@@ -1,5 +1,10 @@
 import type Phaser from "phaser";
-import { LEVEL_IDS } from "./levelIds";
+import {
+  FALLBACK_LEVEL_IDS,
+  getLevelIdByScene,
+  getSceneByLevelId,
+  syncLevelsFromApi,
+} from "./levelIds";
 
 const API_URL = "http://localhost:3000";
 
@@ -9,11 +14,16 @@ interface LevelProgress {
   isCompleted: boolean;
 }
 
-const sceneById = new Map(
-  Object.entries(LEVEL_IDS).map(([scene, id]) => [id, scene]),
-);
-
 const completedKey = (scene: string) => `${scene}_completed`;
+
+
+function getKnownSceneKeys(): string[] {
+  const fromMap: string[] = [];
+  for (const scene of Object.keys(FALLBACK_LEVEL_IDS)) {
+    if (!fromMap.includes(scene)) fromMap.push(scene);
+  }
+  return fromMap;
+}
 
 export function isCompleted(
   registry: Phaser.Data.DataManager,
@@ -23,7 +33,7 @@ export function isCompleted(
 }
 
 export function resetProgress(registry: Phaser.Data.DataManager) {
-  Object.keys(LEVEL_IDS).forEach((scene) =>
+  getKnownSceneKeys().forEach((scene) =>
     registry.set(completedKey(scene), false),
   );
   registry.set("progress_loaded", false);
@@ -38,13 +48,15 @@ export async function loadProgress(
   if (!force && registry.get("progress_loaded")) return true;
 
   try {
+    await syncLevelsFromApi();
+
     const res = await fetch(`${API_URL}/api/player-progress/${playerId}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const list: LevelProgress[] = await res.json();
 
     resetProgress(registry);
     for (const item of list) {
-      const scene = sceneById.get(item.levelId);
+      const scene = getSceneByLevelId(item.levelId);
       if (scene && item.isCompleted) registry.set(completedKey(scene), true);
     }
 
@@ -62,7 +74,7 @@ export async function submitLevelResults(
   result: { roundsCompleted: number; won: boolean },
 ) {
     const playerId = localStorage.getItem("playerId");
-    const levelId = LEVEL_IDS[scene];
+    const levelId = getLevelIdByScene(scene);
 
     if (!playerId || levelId === undefined) return;
 

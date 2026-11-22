@@ -6,14 +6,17 @@ import bcrypt from "bcrypt";
 import { listPlayers, getPlayerById, createPlayer } from "./players.ts";
 import { db } from "./prisma/db.ts";
 import { hashPassword } from "./hashPassword.ts";
+import {
+  NotFoundError,
+  ValidationError,
+  recordLevelResult,
+} from "./services/progressService.ts";
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
-
-const LEVEL_IDS = [1, 2, 3, 4, 5];
 
 async function getSelectedNames(player: {
   maleCharacterId?: string | null;
@@ -36,6 +39,11 @@ async function getSelectedNames(player: {
     console.error("Error in getSelectedNames:", err);
     return { male: undefined, female: undefined };
   }
+};
+
+async function getActiveLevelIds(): Promise<number[]> {
+  const levels = await db.orm.public.Level.where({isActive: true}).all();
+  return levels.map((lvl) => lvl.id);
 }
 
 app.get("/api/players", async (req, res) => {
@@ -127,70 +135,32 @@ app.get("/api/player-progress/:playerId", async (req, res) => {
 
 app.post("/api/level-result", async (req, res) => {
   try {
-    const { playerId, levelId, roundsCompleted, won } = req.body;
+    const { playerId, levelId, roundsCompleted, won } = req.body ?? {};
 
-    if (typeof playerId !== "string") {
-      return res.status(400).json({ error: "invalid playerId" });
-    }
-    if (!LEVEL_IDS.includes(levelId)) {
-      return res.status(400).json({ error: "invalid levelId" });
-    }
-    if (!Number.isInteger(roundsCompleted) || roundsCompleted < 0) {
-      return res.status(400).json({ error: "invalid roundsCompleted" });
-    }
-    if (typeof won !== "boolean") {
-      return res.status(400).json({ error: "won must be boolean" });
-    }
-
-    const player = await getPlayerById(playerId);
-    if (!player) return res.status(404).json({ error: "player is not found" });
-
-    const existing = await db.orm.public.PlayerLevelProgress.first({
+    const allowedLevelIds = await getActiveLevelIds();
+    const result = await recordLevelResult(db, {
       playerId,
       levelId,
+      roundsCompleted,
+      won,
+      allowedLevelIds: allowedLevelIds,
     });
 
-    const next = {
-      maxRoundReached: Math.max(
-        existing?.maxRoundReached ?? 0,
-        roundsCompleted,
-      ),
-      isCompleted: (existing?.isCompleted ?? false) || won,
-    };
-
-    if (existing) {
-      await db.orm.public.PlayerLevelProgress.where({ id: existing.id }).update(
-        next,
-      );
-    } else {
-      try {
-        await db.orm.public.PlayerLevelProgress.create({
-          playerId,
-          levelId,
-          ...next,
-        });
-      } catch {
-        const created = await db.orm.public.PlayerLevelProgress.first({
-          playerId,
-          levelId,
-        });
-        if (created) {
-          await db.orm.public.PlayerLevelProgress.where({
-            id: created.id,
-          }).update({
-            maxRoundReached: Math.max(
-              created.maxRoundReached,
-              next.maxRoundReached,
-            ),
-            isCompleted: created.isCompleted || next.isCompleted,
-          });
-        }
-      }
-    }
-    res.json({ success: true, ...next });
+    return res.json({
+      success: true,
+      ...result.progress,
+      session: result.session,
+    });
   } catch (error) {
+    if (error instanceof ValidationError) {
+      return res.status(error.status).json({ error: error.message });
+    }
+    if (error instanceof NotFoundError) {
+      return res.status(error.status).json({ error: error.message });
+    }
+
     console.error(error);
-    res.status(500).json({ error: "error during saving level results" });
+    return res.status(500).json({ error: "error during saving level results" });
   }
 });
 
@@ -243,6 +213,17 @@ app.put("/api/players/:id/characters", async (req, res) => {
     }
   }
 });
+
+
+app.get("/api/levels", async (req, res) => {
+  try {
+    const levels = await db.orm.public.Level.where({isActive: true}).all();
+    res.json(levels);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: "error during fetching levels"});
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);

@@ -3,6 +3,7 @@ import "./css/authModal.css";
 import "./css/toasts.css";
 import { showToast } from "./ui/showToast";
 import { storeSelectedCharacters } from "./characters";
+import { loadProgress, resetProgress } from "./progress";
 
 export class MainMenuScene extends Phaser.Scene {
   cursorSprite!: Phaser.GameObjects.Image;
@@ -139,6 +140,10 @@ export class MainMenuScene extends Phaser.Scene {
 
         localStorage.setItem("playerId", player.id);
         localStorage.setItem("playerUsername", player.username);
+
+        this?.usernameText?.setText(`Welcome, ${player.username}!`);
+        resetProgress(this.registry);
+        await loadProgress(this.registry, true);
         storeSelectedCharacters(player.selectedCharacters);
 
         showToast(`Welcome back, ${player.username}!`);
