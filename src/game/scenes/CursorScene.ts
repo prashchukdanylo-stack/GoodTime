@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import cursorPointer from "./assets/cursor_pointer_idle.png";
+import cursorPointer from "../../assets/cursor_pointer_idle.png";
 export class CursorScene extends Phaser.Scene {
     private cursorSprite!: Phaser.GameObjects.Sprite;
     constructor() {

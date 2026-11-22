@@ -1,39 +1,39 @@
 import Phaser from "phaser";
-import { createInteractiveButton } from "../ui/createInteractiveButton";
-import { showNextRoundBanner } from "../ui/nextRound";
-import { submitLevelResults } from "../progress";
+import { createInteractiveButton } from "../../ui/createInteractiveButton";
+import { showNextRoundBanner } from "../../ui/nextRound";
+import { submitLevelResults } from "../../api/progress";
 
-import attractionBackground from "../assets/attractionBackground.png";
-import targetPlace from "../assets/target_place_idle.png";
-import targetImg from "../assets/target.png";
-import baseball from "../assets/baseball_idle.png";
-
-
-import roundIcon from "../assets/round.png";
-import attemptsIcon from "../assets/attempts.png";
-import hitIcon from "../assets/hit.png";
+import attractionBackground from "../../../assets/attractionBackground.png";
+import targetPlace from "../../../assets/target_place_idle.png";
+import targetImg from "../../../assets/target.png";
+import baseball from "../../../assets/baseball_idle.png";
 
 
-import gregBaseballIdle from "../assets/Greg_baseball_idle.png";
-import gregBaseballThrow from "../assets/Greg_baseball_throw_idle.png";
-import gregBaseballVictory from "../assets/Greg_baseball_victory_idle.png";
+import roundIcon from "../../../assets/round.png";
+import attemptsIcon from "../../../assets/attempts.png";
+import hitIcon from "../../../assets/hit.png";
 
-import damonBaseballIdle from "../assets/Damon_baseball_idle.png";
-import damonBaseballThrow from "../assets/Damon_baseball_throw_idle.png";
-import damonBaseballVictory from "../assets/Damon_baseball_victory_idle.png";
 
-import tomBaseballIdle from "../assets/Tom_baseball_idle.png";
-import tomBaseballThrow from "../assets/Tom_baseball_throw_idle.png";
-import tomBaseballVictory from "../assets/Tom_baseball_victory_idle.png";
+import gregBaseballIdle from "../../../assets/Greg_baseball_idle.png";
+import gregBaseballThrow from "../../../assets/Greg_baseball_throw_idle.png";
+import gregBaseballVictory from "../../../assets/Greg_baseball_victory_idle.png";
 
-import lauraBaseballIdle from "../assets/Laura_baseball_idle.png";
-import lauraBaseballVictory from "../assets/Laura_baseball_victory_idle.png";
+import damonBaseballIdle from "../../../assets/Damon_baseball_idle.png";
+import damonBaseballThrow from "../../../assets/Damon_baseball_throw_idle.png";
+import damonBaseballVictory from "../../../assets/Damon_baseball_victory_idle.png";
 
-import lilyBaseballIdle from "../assets/Lily_baseball_idle.png";
-import lilyBaseballVictory from "../assets/Lily_baseball_victory_idle.png";
+import tomBaseballIdle from "../../../assets/Tom_baseball_idle.png";
+import tomBaseballThrow from "../../../assets/Tom_baseball_throw_idle.png";
+import tomBaseballVictory from "../../../assets/Tom_baseball_victory_idle.png";
 
-import stellaBaseballIdle from "../assets/Stella_baseball_idle.png";
-import stellaBaseballVictory from "../assets/Stella_baseball_victory_idle.png";
+import lauraBaseballIdle from "../../../assets/Laura_baseball_idle.png";
+import lauraBaseballVictory from "../../../assets/Laura_baseball_victory_idle.png";
+
+import lilyBaseballIdle from "../../../assets/Lily_baseball_idle.png";
+import lilyBaseballVictory from "../../../assets/Lily_baseball_victory_idle.png";
+
+import stellaBaseballIdle from "../../../assets/Stella_baseball_idle.png";
+import stellaBaseballVictory from "../../../assets/Stella_baseball_victory_idle.png";
 
 export interface PlayerProps {
   name: string;

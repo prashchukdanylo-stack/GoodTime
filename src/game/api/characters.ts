@@ -60,7 +60,3 @@ export async function saveSelectedCharacters(
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
-
-export function toPlayersProps(c: CharacterDto) {
-    return { name: c.name, texture: `${c.name}_idle`, anim: `${c.name}_anim` };
-}

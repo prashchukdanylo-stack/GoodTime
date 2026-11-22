@@ -1,9 +1,9 @@
 import Phaser from "phaser";
-import "./css/authModal.css";
-import "./css/toasts.css";
-import { showToast } from "./ui/showToast";
-import { storeSelectedCharacters } from "./characters";
-import { loadProgress, resetProgress } from "./progress";
+import "../styles/authModal.css";
+import "../styles/toasts.css";
+import { showToast } from "../ui/showToast";
+import { storeSelectedCharacters } from "../api/characters";
+import { loadProgress, resetProgress } from "../api/progress";
 
 export class MainMenuScene extends Phaser.Scene {
   cursorSprite!: Phaser.GameObjects.Image;

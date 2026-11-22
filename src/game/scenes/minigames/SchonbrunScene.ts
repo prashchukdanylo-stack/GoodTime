@@ -1,28 +1,28 @@
 import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
-import { createInteractiveButton } from "../ui/createInteractiveButton";
-import { showNextRoundBanner } from "../ui/nextRound";
-import { submitLevelResults } from "../progress";
+import { createInteractiveButton } from "../../ui/createInteractiveButton";
+import { showNextRoundBanner } from "../../ui/nextRound";
+import { submitLevelResults } from "../../api/progress";
 
-import bushImg from "../assets/bush.png";
-import snakeIdle from "../assets/snake_idle.png";
-import rosesSides from "../assets/roses_sides_idle.png";
-import rosesDown from "../assets/roses_down_idle.png";
+import bushImg from "../../../assets/bush.png";
+import snakeIdle from "../../../assets/snake_idle.png";
+import rosesSides from "../../../assets/roses_sides_idle.png";
+import rosesDown from "../../../assets/roses_down_idle.png";
 
-import lauraWalkRight from "../assets/Laura_walk_right_idle.png";
-import lauraWalkDown from "../assets/Laura_walk_down_idle.png";
-import lauraWalkUp from "../assets/Laura_walk_up_idle.png";
-import lauraIdle from "../assets/Laura_idle.png";
+import lauraWalkRight from "../../../assets/Laura_walk_right_idle.png";
+import lauraWalkDown from "../../../assets/Laura_walk_down_idle.png";
+import lauraWalkUp from "../../../assets/Laura_walk_up_idle.png";
+import lauraIdle from "../../../assets/Laura_idle.png";
 
-import lilyWalkRight from "../assets/Lily_walk_right_idle.png";
-import lilyWalkDown from "../assets/Lily_walk_down_idle.png";
-import lilyWalkUp from "../assets/Lily_walk_up_idle.png";
-import lilyIdle from "../assets/Lily_idle.png";
+import lilyWalkRight from "../../../assets/Lily_walk_right_idle.png";
+import lilyWalkDown from "../../../assets/Lily_walk_down_idle.png";
+import lilyWalkUp from "../../../assets/Lily_walk_up_idle.png";
+import lilyIdle from "../../../assets/Lily_idle.png";
 
-import stellaWalkRight from "../assets/Stella_walk_right_idle.png";
-import stellaWalkDown from "../assets/Stella_walk_down_idle.png";
-import stellaWalkUp from "../assets/Stella_walk_up_idle.png";
-import stellaIdle from "../assets/Stella_idle.png";
+import stellaWalkRight from "../../../assets/Stella_walk_right_idle.png";
+import stellaWalkDown from "../../../assets/Stella_walk_down_idle.png";
+import stellaWalkUp from "../../../assets/Stella_walk_up_idle.png";
+import stellaIdle from "../../../assets/Stella_idle.png";
 
 export class ShconbrunScene extends Phaser.Scene {
   private roundIndex: number = 0;

@@ -8,9 +8,9 @@
   },
   "scripts": {
     "dev": "vite",
-    "dev:server": "tsx watch src/index.ts",
+    "dev:server": "tsx watch src/server.ts",
     "build": "vite build",
-    "build:server": "tsdown",
+    "build:server": "tsdown src/server.ts",
     "composer:deploy": "prisma deploy",
     "composer:dev": "prisma dev",
     "contract:emit": "prisma contract emit",

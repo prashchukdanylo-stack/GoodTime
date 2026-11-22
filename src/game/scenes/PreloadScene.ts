@@ -1,14 +1,14 @@
 import Phaser from "phaser";
 
-import menuBackground from "./assets/menuBackground.png";
-import cursor from "./assets/cursor.png";
-import start from "./assets/startBtn.png";
-import game_title from "./assets/game_title.png";
-import goToMap from "./assets/go_to_map.png";
-import victory from "./assets/victory.png"; 
-import restart from "./assets/restart.png";
-import gameOver from "./assets/game_over.png";
-import accountBtn from "./assets/account_btn.png";
+import menuBackground from "../../assets/menuBackground.png";
+import cursor from "../../assets/cursor.png";
+import start from "../../assets/startBtn.png";
+import game_title from "../../assets/game_title.png";
+import goToMap from "../../assets/go_to_map.png";
+import victory from "../../assets/victory.png"; 
+import restart from "../../assets/restart.png";
+import gameOver from "../../assets/game_over.png";
+import accountBtn from "../../assets/account_btn.png";
 export class PreloadScene extends Phaser.Scene {
   constructor() {
     super({ key: "PreloadScene" });

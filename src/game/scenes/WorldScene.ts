@@ -1,16 +1,16 @@
 import Phaser from "phaser";
 
-import viennaBackground from "./assets/viennaBackground.png";
-import menuIcon from "./assets/menu_icon.png";
-import coin from "./assets/coin.png";
+import viennaBackground from "../../assets/viennaBackground.png";
+import menuIcon from "../../assets/menu_icon.png";
+import coin from "../../assets/coin.png";
 
-import attractionIdle from "./assets/attraction_idle.png";
-import albertinaIdle from "./assets/albertina_idle.png";
-import stephanIdle from "./assets/stephan_idle.png";
-import schonbrunIdle from "./assets/schonbrun_idle.png";
-import belvedereIdle from "./assets/belvedere_idle.png";
+import attractionIdle from "../../assets/attraction_idle.png";
+import albertinaIdle from "../../assets/albertina_idle.png";
+import stephanIdle from "../../assets/stephan_idle.png";
+import schonbrunIdle from "../../assets/schonbrun_idle.png";
+import belvedereIdle from "../../assets/belvedere_idle.png";
 
-import { isCompleted, loadProgress } from "./progress";
+import { isCompleted, loadProgress } from "../api/progress";
 
 interface PlayerProps {
   name: string;

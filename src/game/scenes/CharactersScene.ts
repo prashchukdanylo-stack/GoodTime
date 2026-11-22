@@ -1,29 +1,29 @@
 import Phaser from "phaser";
-import { createInteractiveButton } from "./ui/createInteractiveButton";
-import { loadSelectedCharacters } from "./characters";
+import { createInteractiveButton } from "../ui/createInteractiveButton";
+import { loadSelectedCharacters } from "../api/characters";
 
 
-import homeBackground from "./assets/homeBackground.png";
-import arrowLeft from "./assets/arrowLeft_idle.png";
-import arrowRight from "./assets/arrowRight_idle.png";
-import confirm from "./assets/confirm.png";
+import homeBackground from "../../assets/homeBackground.png";
+import arrowLeft from "../../assets/arrowLeft_idle.png";
+import arrowRight from "../../assets/arrowRight_idle.png";
+import confirm from "../../assets/confirm.png";
 
 
-import gregIdle from "./assets/Greg_idle.png";
-import damonIdle from "./assets/Damon_idle.png";
-import tomIdle from "./assets/Tom_idle.png";
-import gregName from "./assets/Greg_name.png";
-import damonName from "./assets/Damon_name.png";
-import tomName from "./assets/Tom_name.png";
+import gregIdle from "../../assets/Greg_idle.png";
+import damonIdle from "../../assets/Damon_idle.png";
+import tomIdle from "../../assets/Tom_idle.png";
+import gregName from "../../assets/Greg_name.png";
+import damonName from "../../assets/Damon_name.png";
+import tomName from "../../assets/Tom_name.png";
 
 
-import lauraIdle from "./assets/Laura_idle.png";
-import lilyIdle from "./assets/Lily_idle.png";
-import stellaIdle from "./assets/Stella_idle.png";
-import lauraName from "./assets/Laura_name.png";
-import lilyName from "./assets/Lily_name.png";
-import stellaName from "./assets/Stella_name.png";
-import { fetchCharacters, saveSelectedCharacters } from "./characters";
+import lauraIdle from "../../assets/Laura_idle.png";
+import lilyIdle from "../../assets/Lily_idle.png";
+import stellaIdle from "../../assets/Stella_idle.png";
+import lauraName from "../../assets/Laura_name.png";
+import lilyName from "../../assets/Lily_name.png";
+import stellaName from "../../assets/Stella_name.png";
+import { fetchCharacters, saveSelectedCharacters } from "../api/characters";
 
 const maleCharacters: CharacterOption[] = [
   { name: "Greg", texture: "Greg_idle", anim: "Greg_anim", nameImg: "Greg_name" },

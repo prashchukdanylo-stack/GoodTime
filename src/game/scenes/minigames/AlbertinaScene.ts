@@ -1,16 +1,16 @@
 import Phaser from "phaser";
 import type { PlayersProps } from "./PraterScene";
-import { createInteractiveButton } from "../ui/createInteractiveButton";
-import { showNextRoundBanner } from "../ui/nextRound";
-import { submitLevelResults } from "../progress";
+import { createInteractiveButton } from "../../ui/createInteractiveButton";
+import { showNextRoundBanner } from "../../ui/nextRound";
+import { submitLevelResults } from "../../api/progress";
 
-import albertinaBackground from "../assets/albertinaBackground.png";
-import brush from "../assets/brush.png";
+import albertinaBackground from "../../../assets/albertinaBackground.png";
+import brush from "../../../assets/brush.png";
 
 const pieceModules = [
-  import.meta.glob("../assets/pieces1/*.jpg", { eager: true, query: "?url", import: "default" }),
-  import.meta.glob("../assets/pieces2/*.jpg", { eager: true, query: "?url", import: "default" }),
-  import.meta.glob("../assets/pieces3/*.jpg", { eager: true, query: "?url", import: "default" })
+  import.meta.glob("../../../assets/pieces1/*.jpg", { eager: true, query: "?url", import: "default" }),
+  import.meta.glob("../../../assets/pieces2/*.jpg", { eager: true, query: "?url", import: "default" }),
+  import.meta.glob("../../../assets/pieces3/*.jpg", { eager: true, query: "?url", import: "default" })
 ];
 
 export class AlbertinaScene extends Phaser.Scene {
